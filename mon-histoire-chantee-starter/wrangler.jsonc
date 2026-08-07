@@ -1,0 +1,16 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "mon-histoire-chantee",
+  "main": "worker/index.ts",
+  "compatibility_date": "2026-07-26",
+  "assets": {
+    "not_found_handling": "single-page-application",
+    "binding": "ASSETS"
+  },
+  "d1_databases": [{ "binding": "DB" }],
+  "r2_buckets": [{ "binding": "MEDIA" }],
+  "vars": {
+    "SHOPIFY_STORE_DOMAIN": "monhistoirechantee.myshopify.com",
+    "SHOPIFY_API_VERSION": "2026-04"
+  }
+}
