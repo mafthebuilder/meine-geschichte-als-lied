@@ -40,7 +40,7 @@ export async function getSiteContent(): Promise<SiteContent> {
 
 export async function getOffersConfig(): Promise<OffersConfig> {
   const response = await fetch("/api/offers");
-  return parseApiResponse<{ config: OffersConfig }>(response, "Les offres sont momentanément indisponibles.").then(result => result.config);
+  return parseApiResponse<{ config: OffersConfig }>(response, "Die Pakete sind momentan nicht verfügbar.").then(result => result.config);
 }
 
 export async function saveSubmission(id: string, answers: FunnelAnswers, stage: "progress" | "form_completed" = "progress") {
@@ -49,7 +49,7 @@ export async function saveSubmission(id: string, answers: FunnelAnswers, stage: 
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ id, answers, stage })
   });
-  if (!response.ok) throw new Error("Impossible d’enregistrer vos réponses.");
+  if (!response.ok) throw new Error("Deine Angaben konnten nicht gespeichert werden.");
 }
 
 export async function validatePromoCode(input: {
@@ -68,7 +68,7 @@ export async function validatePromoCode(input: {
     percent: number;
     discountCents: number;
     amountCents: number;
-  }>(response, "Ce code promo n’est pas valide.");
+  }>(response, "Dieser Rabattcode ist ungültig.");
 }
 
 export async function createStripePaymentIntent(input: {
@@ -94,18 +94,18 @@ export async function createStripePaymentIntent(input: {
     paymentIntentId: string;
     amountCents: number;
     testMode: boolean;
-  }>(response, "Le paiement sécurisé est momentanément indisponible.");
+  }>(response, "Die sichere Zahlung ist momentan nicht verfügbar.");
 }
 
 export async function getStripePaymentStatus(paymentIntentId: string, submissionId: string) {
   const params = new URLSearchParams({ paymentIntentId, submissionId });
   const response = await fetch(`/api/stripe/payment-status?${params.toString()}`);
-  return parseApiResponse<{ status: string; paymentIntentId: string }>(response, "Impossible de vérifier le paiement.");
+  return parseApiResponse<{ status: string; paymentIntentId: string }>(response, "Die Zahlung konnte nicht überprüft werden.");
 }
 
 export async function getResumeSubmission(token: string): Promise<{ submissionId: string; answers: FunnelAnswers }> {
   const response = await fetch(`/api/resume/${encodeURIComponent(token)}`);
   const data = await response.json() as { submissionId?: string; answers?: FunnelAnswers; error?: string };
-  if (!response.ok || !data.submissionId || !data.answers) throw new Error(data.error || "Impossible de reprendre votre création.");
+  if (!response.ok || !data.submissionId || !data.answers) throw new Error(data.error || "Dein Entwurf konnte nicht wiederhergestellt werden.");
   return { submissionId: data.submissionId, answers: data.answers };
 }

@@ -47,14 +47,14 @@ function loadStripeScript() {
     const existing = document.querySelector<HTMLScriptElement>('script[src="https://js.stripe.com/v3/"]');
     if (existing) {
       existing.addEventListener("load", () => resolve(), { once: true });
-      existing.addEventListener("error", () => reject(new Error("Stripe n’a pas pu être chargé.")), { once: true });
+      existing.addEventListener("error", () => reject(new Error("Stripe konnte nicht geladen werden.")), { once: true });
       return;
     }
     const script = document.createElement("script");
     script.src = "https://js.stripe.com/v3/";
     script.async = true;
     script.onload = () => resolve();
-    script.onerror = () => reject(new Error("Stripe n’a pas pu être chargé."));
+    script.onerror = () => reject(new Error("Stripe konnte nicht geladen werden."));
     document.head.appendChild(script);
   });
   return stripeScriptPromise;
@@ -73,7 +73,7 @@ function billingNameFromEmail(email: string) {
     .replace(/[._-]+/g, " ")
     .replace(/\s+/g, " ")
     .trim();
-  return readableName.slice(0, 80) || "Client Mon Histoire Chantée";
+  return readableName.slice(0, 80) || "Kunde Meine Geschichte als Lied";
 }
 
 function readAttribution() {
@@ -95,12 +95,12 @@ function metaIdentifiers() {
 
 function paymentContent(answers: FunnelAnswers, total: number, offer: OfferConfig, expressPriceCents: number) {
   const contents = [
-    { id: `chanson_personnalisee_${answers.offer}`, quantity: 1, item_price: offer.priceCents / 100 },
-    ...(answers.express ? [{ id: "livraison_express_24h", quantity: 1, item_price: expressPriceCents / 100 }] : [])
+    { id: `personalisiertes_lied_${answers.offer}`, quantity: 1, item_price: offer.priceCents / 100 },
+    ...(answers.express ? [{ id: "express_lieferung_24h", quantity: 1, item_price: expressPriceCents / 100 }] : [])
   ];
   return {
-    content_name: `Chanson personnalisée ${offer.name}`,
-    content_category: "Chanson personnalisée",
+    content_name: `Personalisiertes Lied ${offer.name}`,
+    content_category: "Personalisiertes Lied",
     content_ids: contents.map(item => item.id),
     contents,
     content_type: "product",
@@ -196,7 +196,7 @@ export default function StripePayment({ submissionId, answers, total, recipientN
         setTestMode(result.testMode);
         trackMetaEvent("InitiateCheckout", paymentParams, `initiate_checkout:stripe:${submissionId}`, "session", `initiate_checkout:stripe:${submissionId}`);
       } catch (intentError) {
-        if (!cancelled) setError(intentError instanceof Error ? intentError.message : "Le paiement sécurisé est momentanément indisponible.");
+        if (!cancelled) setError(intentError instanceof Error ? intentError.message : "Die sichere Zahlung ist momentan nicht verfügbar.");
       } finally {
         if (!cancelled) setLoadingIntent(false);
       }
@@ -225,7 +225,7 @@ export default function StripePayment({ submissionId, answers, total, recipientN
       const stripe = window.Stripe(publishableKey);
       const elements = stripe.elements({
         clientSecret,
-        locale: "fr",
+        locale: "de",
         appearance: {
           theme: "flat",
           variables: {
@@ -284,7 +284,7 @@ export default function StripePayment({ submissionId, answers, total, recipientN
       card.mount(cardRef.current);
       mountedElementsRef.current = [express, card];
     }
-    void mountElements().catch(mountError => !cancelled && setError(mountError instanceof Error ? mountError.message : "Le module de paiement n’a pas pu être chargé."));
+    void mountElements().catch(mountError => !cancelled && setError(mountError instanceof Error ? mountError.message : "Das Zahlungsmodul konnte nicht geladen werden."));
     return () => { cancelled = true; };
   }, [clientSecret, publishableKey, amountCents, success]);
 
@@ -313,7 +313,7 @@ export default function StripePayment({ submissionId, answers, total, recipientN
     try {
       if (method === "card") {
         const submitted = await elements.submit();
-        if (submitted.error) throw new Error(submitted.error.message || "Vérifiez vos informations de paiement.");
+        if (submitted.error) throw new Error(submitted.error.message || "Prüfe bitte deine Zahlungsangaben.");
       }
       const result = await stripe.confirmPayment({
         elements,
@@ -324,11 +324,11 @@ export default function StripePayment({ submissionId, answers, total, recipientN
         },
         redirect: "if_required"
       });
-      if (result.error) throw new Error(result.error.message || "Le paiement n’a pas pu être confirmé.");
+      if (result.error) throw new Error(result.error.message || "Die Zahlung konnte nicht bestätigt werden.");
       if (result.paymentIntent?.status === "succeeded") completePayment(result.paymentIntent.id);
-      else throw new Error("Le paiement est encore en cours de validation. Actualisez la page dans quelques instants.");
+      else throw new Error("Die Zahlung wird noch geprüft. Bitte aktualisiere die Seite in wenigen Augenblicken.");
     } catch (paymentError) {
-      const message = paymentError instanceof Error ? paymentError.message : "Le paiement n’a pas pu être confirmé.";
+      const message = paymentError instanceof Error ? paymentError.message : "Die Zahlung konnte nicht bestätigt werden.";
       const paymentFailed = walletEvent?.paymentFailed;
       if (method === "wallet" && typeof paymentFailed === "function") paymentFailed({ reason: "fail", message });
       setError(message);
@@ -336,46 +336,46 @@ export default function StripePayment({ submissionId, answers, total, recipientN
     }
   }
 
-  return <section className={success ? "stripe-payment-shell success" : "stripe-payment-shell"} ref={sectionRef} aria-label="Paiement sécurisé">
+  return <section className={success ? "stripe-payment-shell success" : "stripe-payment-shell"} ref={sectionRef} aria-label="Sichere Zahlung">
     {success ? <div className="stripe-payment-success">
       <span className="stripe-success-icon">✓</span>
-      <span className="eyebrow">Paiement confirmé</span>
-      <h2>Votre chanson pour <em>{recipientName}</em> entre en création.</h2>
-      <p>Un e-mail de confirmation vient d’être envoyé à <strong>{answers.email}</strong>. Justine vous tiendra informé(e) de chaque étape.</p>
-      <div className="stripe-success-details"><span>Commande sécurisée</span><span>Création personnalisée</span><span>{answers.express ? "Livraison Express 24 h" : "Livraison sous 4 jours"}</span></div>
+      <span className="eyebrow">Zahlung bestätigt</span>
+      <h2>Dein Lied für <em>{recipientName}</em> wird jetzt erstellt.</h2>
+      <p>Eine Bestätigung wurde an <strong>{answers.email}</strong> gesendet. Justine hält dich über jeden Schritt auf dem Laufenden.</p>
+      <div className="stripe-success-details"><span>Sichere Bestellung</span><span>Persönlich erstellt</span><span>{answers.express ? "Express-Lieferung in 24 Std." : "Lieferung in 4 Tagen"}</span></div>
     </div> : <>
       <div className="stripe-payment-heading">
-        <div><span className="eyebrow">Tout est prêt</span><h2>Votre chanson est prête à prendre vie</h2><p>Finalisez votre commande pour lancer dès maintenant la création de la chanson de <strong>{recipientName}</strong>.</p></div>
-        <div className="stripe-trust-badges" aria-label="Garanties de confiance">
-          <span className="stripe-secure-badge">🔒 Sécurisé par Stripe</span>
-          <span className="stripe-business-badge">✓ Entreprise vérifiée</span>
+        <div><span className="eyebrow">Alles ist bereit</span><h2>Dein Lied kann jetzt entstehen</h2><p>Schließe deine Bestellung ab, damit wir sofort mit dem Lied für <strong>{recipientName}</strong> beginnen können.</p></div>
+        <div className="stripe-trust-badges" aria-label="Vertrauensmerkmale">
+          <span className="stripe-secure-badge">🔒 Sicher mit Stripe</span>
+          <span className="stripe-business-badge">✓ Verifiziertes Unternehmen</span>
         </div>
       </div>
 
-      {!activated && <div className="stripe-payment-placeholder"><span /><span /><span /><p>Chargement du paiement sécurisé…</p></div>}
-      {activated && loadingIntent && !clientSecret && <div className="stripe-payment-placeholder"><span /><span /><span /><p>Préparation de votre paiement…</p></div>}
+      {!activated && <div className="stripe-payment-placeholder"><span /><span /><span /><p>Sichere Zahlung wird geladen …</p></div>}
+      {activated && loadingIntent && !clientSecret && <div className="stripe-payment-placeholder"><span /><span /><span /><p>Zahlung wird vorbereitet …</p></div>}
 
       {clientSecret && <div className={ready ? "stripe-payment-content ready" : "stripe-payment-content loading"}>
         <div className={walletVisible ? "stripe-wallet-zone visible" : "stripe-wallet-zone"}>
           <div ref={expressRef} />
         </div>
-        {walletVisible && <div className="stripe-payment-divider"><span>ou payer par carte</span></div>}
+        {walletVisible && <div className="stripe-payment-divider"><span>oder mit Karte bezahlen</span></div>}
         <div className="stripe-card-zone">
-          <div className="stripe-card-label"><strong>Carte bancaire</strong><span>Visa · Mastercard · CB</span></div>
+          <div className="stripe-card-label"><strong>Kredit- oder Debitkarte</strong><span>Visa · Mastercard</span></div>
           <div className={ready ? "stripe-element-frame ready" : "stripe-element-frame"} ref={cardRef} />
           <button type="button" className="button stripe-card-submit" onClick={() => void confirmPayment("card")} disabled={!ready || loading || loadingIntent}>
-            {loading ? <><i className="stripe-spinner" /> Paiement en cours…</> : <>Offrir ma chanson <span aria-hidden="true">✦</span></>}
+            {loading ? <><i className="stripe-spinner" /> Zahlung läuft …</> : <>Lied bestellen <span aria-hidden="true">✦</span></>}
           </button>
-          <div className="stripe-micro-reassurance"><span>🔒 Données chiffrées</span><span>✓ Sans abonnement</span><span>↩ Satisfait ou remboursé</span></div>
+          <div className="stripe-micro-reassurance"><span>🔒 Verschlüsselte Daten</span><span>✓ Kein Abo</span><span>↩ Geld-zurück-Garantie</span></div>
         </div>
       </div>}
 
-      {testMode && <div className="stripe-test-mode">Mode test Stripe actif</div>}
+      {testMode && <div className="stripe-test-mode">Stripe-Testmodus aktiv</div>}
       {error && <div className="stripe-payment-error" role="alert">{error}</div>}
-      {!error && intentId && <div className="stripe-payment-legal" aria-label="Moyens de paiement acceptés">
+      {!error && intentId && <div className="stripe-payment-legal" aria-label="Akzeptierte Zahlungsmethoden">
         <img
           src="https://cdn.shopify.com/s/files/1/1094/5658/9138/files/payment-methods_result.avif?v=1785082552"
-          alt="Moyens de paiement acceptés"
+          alt="Akzeptierte Zahlungsmethoden"
           loading="eager"
           style={{ display: "block", width: "180px", maxWidth: "58%", height: "auto", margin: "0 auto", opacity: 0.86 }}
         />

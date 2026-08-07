@@ -7,10 +7,10 @@ export const DEFAULT_OFFERS_CONFIG: OffersConfig = {
     {
       id: "discovery",
       active: true,
-      name: "Découverte",
+      name: "Starter",
       priceCents: 990,
       compareAtCents: null,
-      benefits: ["Chanson personnalisée", "Livraison sous 4 jours", "Aucune révision incluse"],
+      benefits: ["Persönliches Lied", "Lieferung innerhalb von 4 Tagen", "Keine Überarbeitung inklusive"],
       revisionLimit: 0,
       deliveryHours: 96,
       recommended: false,
@@ -19,10 +19,10 @@ export const DEFAULT_OFFERS_CONFIG: OffersConfig = {
     {
       id: "essential",
       active: true,
-      name: "Essentiel",
+      name: "Basis",
       priceCents: 1490,
       compareAtCents: 5090,
-      benefits: ["Chanson personnalisée", "Livraison sous 4 jours", "1 révision offerte"],
+      benefits: ["Persönliches Lied", "Lieferung innerhalb von 4 Tagen", "1 Überarbeitung inklusive"],
       revisionLimit: 1,
       deliveryHours: 96,
       recommended: false,
@@ -34,7 +34,7 @@ export const DEFAULT_OFFERS_CONFIG: OffersConfig = {
       name: "Premium",
       priceCents: 2490,
       compareAtCents: 8390,
-      benefits: ["Chanson personnalisée", "Livraison prioritaire sous 24 h", "Révisions illimitées"],
+      benefits: ["Persönliches Lied", "Priorisierte Lieferung innerhalb von 24 Std.", "Unbegrenzte Überarbeitungen"],
       revisionLimit: null,
       deliveryHours: 24,
       recommended: true,
@@ -54,5 +54,5 @@ export function findOffer(config: OffersConfig, id: OfferId | string): OfferConf
 }
 
 export function formatOfferPrice(cents: number) {
-  return new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR" }).format(cents / 100);
+  return new Intl.NumberFormat("de-DE", { style: "currency", currency: "EUR" }).format(cents / 100);
 }

@@ -46,10 +46,10 @@ export default function DeliveryPage({ token }: { token: string }) {
     fetch(`/api/delivery/${encodeURIComponent(token)}${previewMode ? "?preview=1" : ""}`)
       .then(async response => {
         const payload = await response.json() as DeliveryData & { error?: string };
-        if (!response.ok) throw new Error(payload.error || "Cette page de livraison est introuvable.");
+        if (!response.ok) throw new Error(payload.error || "Diese Lieferseite wurde nicht gefunden.");
         if (active) setData(payload);
       })
-      .catch(loadError => active && setError(loadError instanceof Error ? loadError.message : "Chargement impossible."))
+      .catch(loadError => active && setError(loadError instanceof Error ? loadError.message : "Die Seite konnte nicht geladen werden."))
       .finally(() => active && setLoading(false));
     return () => { active = false; };
   }, [token]);
@@ -57,7 +57,7 @@ export default function DeliveryPage({ token }: { token: string }) {
   function togglePlayback() {
     const audio = audioRef.current;
     if (!audio) return;
-    if (audio.paused) audio.play().catch(() => setError("La lecture audio n’a pas pu démarrer."));
+    if (audio.paused) audio.play().catch(() => setError("Die Wiedergabe konnte nicht gestartet werden."));
     else audio.pause();
   }
 
@@ -77,16 +77,16 @@ export default function DeliveryPage({ token }: { token: string }) {
         method: "GET",
         credentials: "same-origin"
       });
-      if (!response.ok) throw new Error("Le téléchargement n’a pas pu démarrer.");
+      if (!response.ok) throw new Error("Der Download konnte nicht gestartet werden.");
 
       const contentType = response.headers.get("content-type") || "";
       if (contentType.includes("text/html")) {
-        throw new Error("Le fichier audio est temporairement indisponible.");
+        throw new Error("Die Audiodatei ist vorübergehend nicht verfügbar.");
       }
 
       const blob = await response.blob();
       const objectUrl = URL.createObjectURL(blob);
-      const safeRecipient = (data.recipientName || "votre-proche")
+      const safeRecipient = (data.recipientName || "dein-lieblingsmensch")
         .normalize("NFD")
         .replace(/[\u0300-\u036f]/g, "")
         .replace(/[^a-zA-Z0-9]+/g, "-")
@@ -94,14 +94,14 @@ export default function DeliveryPage({ token }: { token: string }) {
         .toLowerCase();
       const link = document.createElement("a");
       link.href = objectUrl;
-      link.download = `chanson-pour-${safeRecipient || "votre-proche"}.mp3`;
+      link.download = `lied-fuer-${safeRecipient || "dein-lieblingsmensch"}.mp3`;
       link.style.display = "none";
       document.body.appendChild(link);
       link.click();
       link.remove();
       window.setTimeout(() => URL.revokeObjectURL(objectUrl), 1000);
     } catch (downloadError) {
-      setError(downloadError instanceof Error ? downloadError.message : "Téléchargement impossible.");
+      setError(downloadError instanceof Error ? downloadError.message : "Download nicht möglich.");
     } finally {
       setDownloading(false);
     }
@@ -110,7 +110,7 @@ export default function DeliveryPage({ token }: { token: string }) {
   async function submitRevision(event: FormEvent) {
     event.preventDefault();
     if (!revisionMessage.trim()) {
-      setRevisionStatus("Décrivez la modification souhaitée.");
+      setRevisionStatus("Beschreibe bitte die gewünschte Änderung.");
       return;
     }
     setSendingRevision(true);
@@ -127,8 +127,8 @@ export default function DeliveryPage({ token }: { token: string }) {
         })
       });
       const payload = await response.json() as { ok?: boolean; revisionCount?: number; error?: string };
-      if (!response.ok) throw new Error(payload.error || "Votre demande n’a pas pu être envoyée.");
-      setRevisionStatus("Votre demande a bien été envoyée à Justine ✓");
+      if (!response.ok) throw new Error(payload.error || "Deine Änderungsanfrage konnte nicht gesendet werden.");
+      setRevisionStatus("Deine Änderungsanfrage wurde an Justine gesendet ✓");
       setRevisionMessage("");
       setSongMoment("");
       setData(current => current ? {
@@ -138,51 +138,51 @@ export default function DeliveryPage({ token }: { token: string }) {
         revisionPending: true
       } : current);
     } catch (submitError) {
-      setRevisionStatus(submitError instanceof Error ? submitError.message : "Envoi impossible.");
+      setRevisionStatus(submitError instanceof Error ? submitError.message : "Senden nicht möglich.");
     } finally {
       setSendingRevision(false);
     }
   }
 
-  if (loading) return <main className="delivery-page delivery-state-page"><div className="delivery-state-card"><span className="delivery-note">♪</span><h1>Votre chanson arrive…</h1><p>Nous préparons votre espace privé.</p></div></main>;
+  if (loading) return <main className="delivery-page delivery-state-page"><div className="delivery-state-card"><span className="delivery-note">♪</span><h1>Dein Lied ist gleich da …</h1><p>Wir bereiten deinen privaten Bereich vor.</p></div></main>;
 
-  if (!data || error) return <main className="delivery-page delivery-state-page"><div className="delivery-state-card"><span className="delivery-note">♪</span><h1>Lien introuvable</h1><p>{error || "Cette page n’est plus disponible."}</p><a href="mailto:contact@monhistoirechantee.com">Contacter Justine</a></div></main>;
+  if (!data || error) return <main className="delivery-page delivery-state-page"><div className="delivery-state-card"><span className="delivery-note">♪</span><h1>Link nicht gefunden</h1><p>{error || "Diese Seite ist nicht mehr verfügbar."}</p><a href="mailto:contact@monhistoirechantee.com">Contacter Justine</a></div></main>;
 
   const revisionUsed = data.revisionLimit !== null && data.revisionCount >= data.revisionLimit;
   const noRevisionIncluded = data.revisionLimit === 0;
   const revisionDescription = noRevisionIncluded
-    ? `Votre formule ${data.offerName} n’inclut pas de révision.`
+    ? `Dein Paket ${data.offerName} enthält keine Überarbeitung.`
     : data.revisionPending
-      ? "Votre demande de révision est en cours de traitement."
+      ? "Deine Änderungsanfrage wird gerade bearbeitet."
       : data.revisionLimit === null
-        ? `Votre formule ${data.offerName} inclut des révisions illimitées, une demande à la fois.`
+        ? `Dein Paket ${data.offerName} enthält unbegrenzte Überarbeitungen – jeweils eine Anfrage nach der anderen.`
         : revisionUsed
-          ? `${data.revisionLimit > 1 ? "Vos révisions incluses ont" : "Votre révision incluse a"} déjà été utilisée${data.revisionLimit > 1 ? "s" : ""}.`
-          : `Votre formule ${data.offerName} inclut ${data.revisionLimit} révision${data.revisionLimit > 1 ? "s" : ""}.`;
+          ? `${data.revisionLimit > 1 ? "Deine enthaltenen Überarbeitungen wurden" : "Deine enthaltene Überarbeitung wurde"} bereits genutzt.`
+          : `Dein Paket ${data.offerName} enthält ${data.revisionLimit} Überarbeitung${data.revisionLimit > 1 ? "en" : ""}.`;
 
   return <main className="delivery-page">
     <div className="delivery-glow delivery-glow-one" />
     <div className="delivery-glow delivery-glow-two" />
 
-    {previewMode && <div className="delivery-preview-banner">Mode prévisualisation administrateur · aucune consultation client enregistrée</div>}
+    {previewMode && <div className="delivery-preview-banner">Admin-Vorschau · kein Kundenaufruf wird erfasst</div>}
     <header className="delivery-header">
-      <img src={LOGO_URL} alt="Mon Histoire Chantée" />
-      <span>Page privée et sécurisée</span>
+      <img src={LOGO_URL} alt="Meine Geschichte als Lied" />
+      <span>Privater und geschützter Bereich</span>
     </header>
 
     <section className="delivery-shell">
       <div className="delivery-hero-copy">
-        <span className="delivery-eyebrow">✦ Votre chanson est prête</span>
-        <h1>Une histoire devenue<br /><em>une chanson pour {data.recipientName}</em></h1>
-        <p>Bonjour {data.customerFirstName || "à vous"}, tout ce que vous nous avez confié a maintenant une voix. Prenez un instant, montez le son et laissez l’émotion faire le reste.</p>
+        <span className="delivery-eyebrow">✦ Dein Lied ist fertig</span>
+        <h1>Eine Geschichte wurde<br /><em>zum Lied für {data.recipientName}</em></h1>
+        <p>Hallo {data.customerFirstName || "du"}, alles, was du uns anvertraut hast, hat jetzt eine Stimme. Nimm dir einen Moment, dreh den Ton auf und lass das Lied wirken.</p>
       </div>
 
       <article className="delivery-player-card">
         <div className="delivery-player-top">
           <div className="delivery-cover-mark">♪</div>
           <div>
-            <span>Création originale</span>
-            <h2>Pour {data.recipientName}</h2>
+            <span>Original für euch erstellt</span>
+            <h2>Für {data.recipientName}</h2>
           </div>
           <span className="delivery-order-number">{data.orderName}</span>
         </div>
@@ -203,60 +203,60 @@ export default function DeliveryPage({ token }: { token: string }) {
         />
 
         <div className="delivery-controls">
-          <button type="button" className="delivery-play-button" onClick={togglePlayback} aria-label={playing ? "Mettre en pause" : "Écouter la chanson"}>
+          <button type="button" className="delivery-play-button" onClick={togglePlayback} aria-label={playing ? "Pause" : "Lied anhören"}>
             {playing ? "Ⅱ" : "▶"}
           </button>
           <div className="delivery-progress-wrap">
-            <input aria-label="Progression de la chanson" type="range" min="0" max={duration || 1} step="0.1" value={Math.min(currentTime, duration || 1)} onChange={event => seek(Number(event.target.value))} />
+            <input aria-label="Fortschritt des Liedes" type="range" min="0" max={duration || 1} step="0.1" value={Math.min(currentTime, duration || 1)} onChange={event => seek(Number(event.target.value))} />
             <div className="delivery-time"><span>{formatTime(currentTime)}</span><span>{formatTime(duration)}</span></div>
           </div>
         </div>
 
         <button type="button" className="delivery-download-button" onClick={downloadSong} disabled={downloading}>
-          <span>{downloading ? "Préparation du MP3…" : "Télécharger ma chanson"}</span><b>{downloading ? "…" : "↓"}</b>
+          <span>{downloading ? "MP3 wird vorbereitet …" : "Mein Lied herunterladen"}</span><b>{downloading ? "…" : "↓"}</b>
         </button>
-        <p className="delivery-download-note">Format MP3 · À conserver et partager librement avec vos proches</p>
+        <p className="delivery-download-note">MP3-Datei · Zum Behalten und Teilen mit deinen Liebsten</p>
       </article>
 
       <section className="delivery-gift-section">
-        <span className="delivery-section-kicker">Le moment parfait</span>
-        <h2>Comment lui faire découvrir la chanson ?</h2>
+        <span className="delivery-section-kicker">Der perfekte Moment</span>
+        <h2>Wie überreichst du das Lied am schönsten?</h2>
         <div className="delivery-gift-grid">
-          <article><span>01</span><strong>Créez un vrai moment</strong><p>Choisissez un instant calme où cette personne pourra écouter sans être interrompue.</p></article>
-          <article><span>02</span><strong>Gardez la surprise</strong><p>Lancez simplement la chanson et observez le moment où elle reconnaît son histoire.</p></article>
-          <article><span>03</span><strong>Conservez la réaction</strong><p>Filmez discrètement si le contexte s’y prête. Ce souvenir peut devenir aussi précieux que la chanson.</p></article>
+          <article><span>01</span><strong>Mach einen echten Moment daraus</strong><p>Wähle einen ruhigen Augenblick, in dem die Person ungestört zuhören kann.</p></article>
+          <article><span>02</span><strong>Bewahre die Überraschung</strong><p>Starte einfach das Lied und genieße den Moment, in dem die Person ihre eigene Geschichte erkennt.</p></article>
+          <article><span>03</span><strong>Halte die Reaktion fest</strong><p>Wenn es passt, filme den Moment ganz unauffällig. Diese Erinnerung kann genauso wertvoll werden wie das Lied selbst.</p></article>
         </div>
       </section>
 
       <section className="delivery-revision-card">
         <div>
-          <span className="delivery-section-kicker">Votre satisfaction compte</span>
-          <h2>Une petite modification à demander ?</h2>
+          <span className="delivery-section-kicker">Deine Zufriedenheit zählt</span>
+          <h2>Möchtest du etwas ändern lassen?</h2>
           <p>{revisionDescription}</p>
         </div>
 
-        {!showRevision && data.canRequestRevision && <button type="button" className="delivery-revision-button" onClick={() => setShowRevision(true)}>Demander une révision</button>}
-        {!data.canRequestRevision && !data.revisionPending && <a className="delivery-revision-button secondary" href="mailto:contact@monhistoirechantee.com">Écrire à Justine</a>}
-        {data.revisionPending && <span className="delivery-revision-pending">Demande en cours</span>}
+        {!showRevision && data.canRequestRevision && <button type="button" className="delivery-revision-button" onClick={() => setShowRevision(true)}>Änderung anfragen</button>}
+        {!data.canRequestRevision && !data.revisionPending && <a className="delivery-revision-button secondary" href="mailto:kontakt@meinegeschichtealslied.com">Justine schreiben</a>}
+        {data.revisionPending && <span className="delivery-revision-pending">Anfrage wird bearbeitet</span>}
 
         {showRevision && data.canRequestRevision && <form className="delivery-revision-form" onSubmit={submitRevision}>
-          <label>Que souhaitez-vous modifier ?
+          <label>Was möchtest du ändern?
             <select value={revisionType} onChange={event => setRevisionType(event.target.value)}>
-              <option value="lyrics">Les paroles</option>
-              <option value="pronunciation">La prononciation d’un prénom</option>
-              <option value="voice_style">La voix ou le style musical</option>
-              <option value="other">Un autre élément</option>
+              <option value="lyrics">Den Liedtext</option>
+              <option value="pronunciation">Die Aussprache eines Namens</option>
+              <option value="voice_style">Die Stimme oder den Musikstil</option>
+              <option value="other">Etwas anderes</option>
             </select>
           </label>
-          <label>Décrivez précisément la modification
-            <textarea rows={5} value={revisionMessage} onChange={event => setRevisionMessage(event.target.value)} placeholder="Exemple : remplacer la phrase du deuxième couplet par…" />
+          <label>Beschreibe die gewünschte Änderung möglichst genau
+            <textarea rows={5} value={revisionMessage} onChange={event => setRevisionMessage(event.target.value)} placeholder="Beispiel: Bitte ersetze die Zeile im zweiten Vers durch …" />
           </label>
-          <label>À quel moment de la chanson ? <small>Facultatif</small>
-            <input value={songMoment} onChange={event => setSongMoment(event.target.value)} placeholder="Exemple : vers 1 min 12" />
+          <label>An welcher Stelle im Lied? <small>Optional</small>
+            <input value={songMoment} onChange={event => setSongMoment(event.target.value)} placeholder="Beispiel: ungefähr bei 1:12" />
           </label>
           <div className="delivery-revision-actions">
-            <button type="button" onClick={() => setShowRevision(false)}>Annuler</button>
-            <button type="submit" disabled={sendingRevision}>{sendingRevision ? "Envoi…" : "Envoyer ma demande"}</button>
+            <button type="button" onClick={() => setShowRevision(false)}>Abbrechen</button>
+            <button type="submit" disabled={sendingRevision}>{sendingRevision ? "Wird gesendet …" : "Anfrage senden"}</button>
           </div>
           {revisionStatus && <p className="delivery-revision-status">{revisionStatus}</p>}
         </form>}
@@ -264,8 +264,8 @@ export default function DeliveryPage({ token }: { token: string }) {
     </section>
 
     <footer className="delivery-footer">
-      <img src={LOGO_URL} alt="Mon Histoire Chantée" />
-      <p>Cette page est strictement privée. Une question ? <a href="mailto:contact@monhistoirechantee.com">Écrivez à Justine</a>.</p>
+      <img src={LOGO_URL} alt="Meine Geschichte als Lied" />
+      <p>Diese Seite ist streng privat. Eine Frage? <a href="mailto:kontakt@meinegeschichtealslied.com">Schreib Justine</a>.</p>
     </footer>
   </main>;
 }

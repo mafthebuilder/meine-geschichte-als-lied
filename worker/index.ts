@@ -68,10 +68,10 @@ const DEFAULT_OFFERS_CONFIG: OffersConfigRecord = {
     {
       id: "discovery",
       active: true,
-      name: "Découverte",
+      name: "Starter",
       priceCents: 990,
       compareAtCents: null,
-      benefits: ["Chanson personnalisée", "Livraison sous 4 jours", "Aucune révision incluse"],
+      benefits: ["Persönliches Lied", "Lieferung innerhalb von 4 Tagen", "Keine Überarbeitung inklusive"],
       revisionLimit: 0,
       deliveryHours: 96,
       recommended: false,
@@ -80,10 +80,10 @@ const DEFAULT_OFFERS_CONFIG: OffersConfigRecord = {
     {
       id: "essential",
       active: true,
-      name: "Essentiel",
+      name: "Basis",
       priceCents: 1490,
       compareAtCents: 5090,
-      benefits: ["Chanson personnalisée", "Livraison sous 4 jours", "1 révision offerte"],
+      benefits: ["Persönliches Lied", "Lieferung innerhalb von 4 Tagen", "1 Überarbeitung inklusive"],
       revisionLimit: 1,
       deliveryHours: 96,
       recommended: false,
@@ -95,7 +95,7 @@ const DEFAULT_OFFERS_CONFIG: OffersConfigRecord = {
       name: "Premium",
       priceCents: 2490,
       compareAtCents: 8390,
-      benefits: ["Chanson personnalisée", "Livraison prioritaire sous 24 h", "Révisions illimitées"],
+      benefits: ["Persönliches Lied", "Priorisierte Lieferung innerhalb von 24 Std.", "Unbegrenzte Überarbeitungen"],
       revisionLimit: null,
       deliveryHours: 24,
       recommended: true,
@@ -514,7 +514,7 @@ async function createKlaviyoEvent(env: Env, eventName: string, uniqueId: string,
         unique_id: uniqueId,
         properties,
         metric: { data: { type: "metric", attributes: { name: eventName } } },
-        profile: { data: { type: "profile", attributes: { email, locale: "fr-FR", properties: {
+        profile: { data: { type: "profile", attributes: { email, locale: "de-DE", properties: {
           "MHC Submission ID": uniqueId.split(":")[0], "MHC Relation": asString(answers.relation),
           "MHC Genre": asString(answers.genre), "MHC Voice": asString(answers.voice),
           "MHC Quality Count": qualities.length, "MHC Email Consent": Boolean(answers.consent)
@@ -932,8 +932,9 @@ function stripePaymentParams(input: {
   const params = new URLSearchParams({
     amount: String(input.amountCents),
     currency: "eur",
-    description: `Chanson personnalisée pour ${input.recipientName || "un proche"}`,
+    description: `Personalisiertes Lied für ${input.recipientName || "einen besonderen Menschen"}`,
     "metadata[submission_id]": input.submissionId,
+    "metadata[site]": "de",
     "metadata[offer]": input.offer,
     "metadata[offer_name]": input.offerName,
     "metadata[offer_config_version]": String(input.offerConfigVersion),
@@ -987,7 +988,7 @@ function stripeOrderConfirmationHtml(params: {
 }) {
   const logo = "https://cdn.shopify.com/s/files/1/1094/5658/9138/files/Logov2-nobg_ea620d66-5432-4114-a214-109012b35880.png?v=1785951795";
   const customer = escapeHtml(params.customerFirstName);
-  const recipient = escapeHtml(params.recipientName || "votre proche");
+  const recipient = escapeHtml(params.recipientName || "einen besonderen Menschen");
   const revisionLabel = params.revisionLimit === null
     ? "Révisions illimitées"
     : params.revisionLimit === 0
@@ -1015,7 +1016,7 @@ async function sendStripeOrderConfirmation(
 ) {
   const email = options.recipientEmail || asString(order.email);
   if (!email) throw new Error("Adresse e-mail client manquante.");
-  const recipientName = asString(answers.recipientName) || "votre proche";
+  const recipientName = asString(answers.recipientName) || "einen besonderen Menschen";
   const customerFirstName = options.isTest ? "Test MHC" : firstName(asString(order.customer_name));
   const result = await env.EMAIL.send({
     // Send the recipient as a plain email string. Cloudflare officially supports
@@ -1039,15 +1040,15 @@ async function sendStripeOrderConfirmation(
 }
 
 async function createOrUpdateStripeIntent(env: Env, request: Request, body: Record<string, unknown>, origin: string) {
-  if (!stripeConfigured(env)) throw new Error("Ajoutez les clés Stripe dans Cloudflare.");
+  if (!stripeConfigured(env)) throw new Error("Die Stripe-Konfiguration ist noch nicht vollständig.");
   const submissionId = asString(body.submissionId);
   const requestedOfferId = asString(body.offer);
-  if (!submissionId || !requestedOfferId) throw new Error("Informations de commande incomplètes.");
+  if (!submissionId || !requestedOfferId) throw new Error("Die Bestellinformationen sind unvollständig.");
 
   const offersConfig = await loadOffersConfig(env);
   const clientOfferConfigVersion = asInt(body.offerConfigVersion);
   if (clientOfferConfigVersion && clientOfferConfigVersion !== offersConfig.version) {
-    throw new Error("Nos offres viennent d’être mises à jour. Rechargez cette page.");
+    throw new Error("Unsere Pakete wurden gerade aktualisiert. Bitte lade die Seite neu.");
   }
   const pricing = calculateConfiguredAmount(offersConfig, requestedOfferId, Boolean(body.express));
   const offer = pricing.offer.id;
@@ -1055,9 +1056,9 @@ async function createOrUpdateStripeIntent(env: Env, request: Request, body: Reco
   const offerSnapshot = JSON.stringify(pricing.snapshot);
 
   const submission = await env.DB.prepare("SELECT email,answers,status FROM submissions WHERE id=?").bind(submissionId).first<Record<string, unknown>>();
-  if (!submission) throw new Error("Votre création n’a pas été retrouvée. Rechargez la page.");
+  if (!submission) throw new Error("Dein Entwurf wurde nicht gefunden. Bitte lade die Seite neu.");
   const email = asString(submission.email) || asString(body.email);
-  if (!/^\S+@\S+\.\S+$/.test(email)) throw new Error("Adresse e-mail invalide.");
+  if (!/^\S+@\S+\.\S+$/.test(email)) throw new Error("Ungültige E-Mail-Adresse.");
 
   const answers = parseAnswers(submission.answers) || {};
   answers.offer = offer;
@@ -1105,7 +1106,7 @@ async function createOrUpdateStripeIntent(env: Env, request: Request, body: Reco
   } else {
     intent = await stripeRequest<StripePaymentIntentObject>(env, "/payment_intents", "POST", stripePaymentParams(paymentInput));
   }
-  if (!intent.id || !intent.client_secret) throw new Error("Stripe n’a pas pu préparer le paiement.");
+  if (!intent.id || !intent.client_secret) throw new Error("Stripe konnte die Zahlung nicht vorbereiten.");
 
   const fbp = asString(body.fbp);
   const fbc = asString(body.fbc);
@@ -1189,7 +1190,7 @@ async function createStripeOrder(env: Env, intent: StripePaymentIntentObject) {
   const amountCents = asInt(intent.amount_received || intent.amount || session.amount_cents);
   const createdAt = new Date().toISOString();
   const orderId = stableOrderId("stripe", intent.id);
-  const orderName = `MHC-${intent.id.slice(-8).toUpperCase()}`;
+  const orderName = `MGAL-${intent.id.slice(-8).toUpperCase()}`;
 
   await env.DB.batch([
     env.DB.prepare(`INSERT INTO mhc_orders(
@@ -1264,7 +1265,7 @@ function deliveryEmailHtml(params: {
   isRevision?: boolean;
 }) {
   const customer = escapeHtml(params.customerFirstName || "à vous");
-  const recipient = escapeHtml(params.recipientName || "votre proche");
+  const recipient = escapeHtml(params.recipientName || "einen besonderen Menschen");
   const deliveryUrl = escapeHtml(params.deliveryUrl);
   const logo = "https://cdn.shopify.com/s/files/1/1094/5658/9138/files/Logov2-nobg_ea620d66-5432-4114-a214-109012b35880.png?v=1785951795";
   const badge = params.isRevision ? "✦ Nouvelle version prête" : "✦ Création terminée";
@@ -1303,8 +1304,8 @@ function deliveryEmailText(params: { customerFirstName: string; recipientName: s
     `Bonjour${params.customerFirstName ? ` ${params.customerFirstName}` : ""},`,
     "",
     params.isRevision
-      ? `Votre nouvelle version pour ${params.recipientName || "votre proche"} est prête.`
-      : `Votre chanson personnalisée pour ${params.recipientName || "votre proche"} est prête.`,
+      ? `Votre nouvelle version pour ${params.recipientName || "einen besonderen Menschen"} est prête.`
+      : `Votre chanson personnalisée pour ${params.recipientName || "einen besonderen Menschen"} est prête.`,
     "",
     "Écoutez-la et téléchargez-la depuis votre espace privé :",
     params.deliveryUrl,
@@ -1326,7 +1327,7 @@ async function sendDelivery(env: Env, order: Record<string, unknown>, origin: st
   const token = asString(order.delivery_token);
   if (!token || !asString(order.delivery_file_key)) throw new Error("Ajoutez d’abord la chanson finale.");
   const answers = parseAnswers(order.answers) || {};
-  const recipientName = asString(answers.recipientName) || "votre proche";
+  const recipientName = asString(answers.recipientName) || "einen besonderen Menschen";
   const customerFirstName = firstName(asString(order.customer_name));
   const isRevision = asInt(order.delivery_email_count) > 0 || asString(order.production_status) === "revision_requested";
   const deliveryUrl = `${origin}/chanson/${encodeURIComponent(token)}`;
@@ -1670,7 +1671,7 @@ async function handleApi(request: Request, env: Env, url: URL, ctx: ExecutionCon
     if (!isAdmin(request, env)) return json({ error: "Accès refusé" }, 401);
     const id = url.searchParams.get("id") || "";
     const order = await env.DB.prepare("SELECT order_name,delivery_file_key,delivery_token FROM mhc_orders WHERE id=?").bind(id).first<Record<string, unknown>>();
-    if (!order) return json({ error: "Commande introuvable" }, 404);
+    if (!order) return json({ error: "Bestellung nicht gefunden" }, 404);
     const form = await request.formData();
     const file = form.get("file");
     if (!(file instanceof File)) return json({ error: "Fichier manquant" }, 400);
@@ -1702,7 +1703,7 @@ async function handleApi(request: Request, env: Env, url: URL, ctx: ExecutionCon
     const id = url.searchParams.get("id") || "";
     const isTest = url.pathname.endsWith("-test");
     const order = await env.DB.prepare(`SELECT o.*, s.answers FROM mhc_orders o LEFT JOIN submissions s ON s.id=o.submission_id WHERE o.id=?`).bind(id).first<Record<string, unknown>>();
-    if (!order) return json({ error: "Commande introuvable." }, 404);
+    if (!order) return json({ error: "Bestellung nicht gefunden." }, 404);
     if (asString(order.payment_provider) !== "stripe") return json({ error: "Cette confirmation est réservée aux commandes Stripe." }, 400);
     const answers = parseAnswers(order.answers) || {};
     const recipientEmail = isTest ? "monhistoirechantee@gmail.com" : asString(order.email);
@@ -1719,7 +1720,7 @@ async function handleApi(request: Request, env: Env, url: URL, ctx: ExecutionCon
     if (!isAdmin(request, env)) return json({ error: "Accès refusé" }, 401);
     const id = url.searchParams.get("id") || "";
     const order = await getOrderWithAnswers(env, id);
-    if (!order) return json({ error: "Commande introuvable" }, 404);
+    if (!order) return json({ error: "Bestellung nicht gefunden" }, 404);
     const isTest = url.pathname.endsWith("-test");
     const recipient = isTest ? "monhistoirechantee@gmail.com" : asString(order.email);
     if (!recipient) return json({ error: "Adresse e-mail client manquante" }, 409);
@@ -1736,11 +1737,11 @@ async function handleApi(request: Request, env: Env, url: URL, ctx: ExecutionCon
     const token = decodeURIComponent(url.pathname.slice("/api/preview/".length));
     const row = await env.DB.prepare(`SELECT s.id,s.email,s.answers,s.created_at,p.excerpt_file_key,p.preview_token
       FROM prospect_previews p JOIN submissions s ON s.id=p.submission_id WHERE p.preview_token=?`).bind(token).first<Record<string, unknown>>();
-    if (!row || !asString(row.excerpt_file_key)) return json({ error: "Extrait introuvable" }, 404);
+    if (!row || !asString(row.excerpt_file_key)) return json({ error: "Hörprobe nicht gefunden" }, 404);
     if (url.searchParams.get("preview") !== "1") await env.DB.prepare("UPDATE prospect_previews SET preview_viewed_at=COALESCE(preview_viewed_at,CURRENT_TIMESTAMP),updated_at=CURRENT_TIMESTAMP WHERE preview_token=?").bind(token).run();
     const answers = parseAnswers(row.answers) || {};
     return json({
-      recipientName: asString(answers.recipientName) || "votre proche",
+      recipientName: asString(answers.recipientName) || "einen besonderen Menschen",
       customerFirstName: firstName(asString(answers.customerName)),
       audioUrl: `/api/preview-audio/${encodeURIComponent(token)}`,
       resumeUrl: `/composer?resume=${encodeURIComponent(token)}`,
@@ -1751,9 +1752,9 @@ async function handleApi(request: Request, env: Env, url: URL, ctx: ExecutionCon
   if (url.pathname.startsWith("/api/preview-audio/") && request.method === "GET") {
     const token = decodeURIComponent(url.pathname.slice("/api/preview-audio/".length));
     const row = await env.DB.prepare("SELECT excerpt_file_key,excerpt_file_name FROM prospect_previews WHERE preview_token=?").bind(token).first<Record<string, unknown>>();
-    if (!row || !asString(row.excerpt_file_key)) return new Response("Fichier introuvable", { status: 404 });
+    if (!row || !asString(row.excerpt_file_key)) return new Response("Datei nicht gefunden", { status: 404 });
     const object = await env.MEDIA.get(asString(row.excerpt_file_key));
-    if (!object) return new Response("Fichier introuvable", { status: 404 });
+    if (!object) return new Response("Datei nicht gefunden", { status: 404 });
     const headers = new Headers(); object.writeHttpMetadata(headers); headers.set("Cache-Control", "private, no-store"); headers.set("Content-Disposition", `inline; filename*=UTF-8''${encodeURIComponent(asString(row.excerpt_file_name) || "extrait.mp3")}`);
     return new Response(object.body, { headers });
   }
@@ -1761,14 +1762,14 @@ async function handleApi(request: Request, env: Env, url: URL, ctx: ExecutionCon
   if (url.pathname.startsWith("/api/resume/") && request.method === "GET") {
     const token = decodeURIComponent(url.pathname.slice("/api/resume/".length));
     const row = await env.DB.prepare("SELECT s.id,s.answers FROM prospect_previews p JOIN submissions s ON s.id=p.submission_id WHERE p.preview_token=?").bind(token).first<Record<string, unknown>>();
-    if (!row) return json({ error: "Création introuvable" }, 404);
+    if (!row) return json({ error: "Entwurf nicht gefunden" }, 404);
     return json({ submissionId: asString(row.id), answers: parseAnswers(row.answers) || {} });
   }
 
   if (url.pathname.startsWith("/api/delivery/") && request.method === "GET") {
     const token = decodeURIComponent(url.pathname.slice("/api/delivery/".length));
     const row = await env.DB.prepare("SELECT o.*,s.answers FROM mhc_orders o LEFT JOIN submissions s ON s.id=o.submission_id WHERE o.delivery_token=?").bind(token).first<Record<string, unknown>>();
-    if (!row || !asString(row.delivery_file_key)) return json({ error: "Commande introuvable" }, 404);
+    if (!row || !asString(row.delivery_file_key)) return json({ error: "Bestellung nicht gefunden" }, 404);
     const preview = url.searchParams.get("preview") === "1";
     if (!preview) await env.DB.prepare("UPDATE mhc_orders SET delivery_viewed_at=COALESCE(delivery_viewed_at,CURRENT_TIMESTAMP),updated_at=CURRENT_TIMESTAMP WHERE id=?").bind(asString(row.id)).run();
     const revisions = await env.DB.prepare(`SELECT COUNT(*) AS count,
@@ -1783,7 +1784,7 @@ async function handleApi(request: Request, env: Env, url: URL, ctx: ExecutionCon
     return json({
       orderName: asString(row.order_name),
       customerFirstName: firstName(asString(row.customer_name)),
-      recipientName: asString(answers.recipientName) || "votre proche",
+      recipientName: asString(answers.recipientName) || "einen besonderen Menschen",
       offer,
       offerName: offerNameForOrder(row),
       audioUrl: `/api/delivery-audio/${encodeURIComponent(token)}`,
@@ -1799,9 +1800,9 @@ async function handleApi(request: Request, env: Env, url: URL, ctx: ExecutionCon
   if (url.pathname.startsWith("/api/delivery-audio/") && request.method === "GET") {
     const token = decodeURIComponent(url.pathname.slice("/api/delivery-audio/".length));
     const row = await env.DB.prepare("SELECT delivery_file_key,delivery_file_name FROM mhc_orders WHERE delivery_token=?").bind(token).first<Record<string, unknown>>();
-    if (!row || !asString(row.delivery_file_key)) return new Response("Fichier introuvable", { status: 404 });
+    if (!row || !asString(row.delivery_file_key)) return new Response("Datei nicht gefunden", { status: 404 });
     const object = await env.MEDIA.get(asString(row.delivery_file_key));
-    if (!object) return new Response("Fichier introuvable", { status: 404 });
+    if (!object) return new Response("Datei nicht gefunden", { status: 404 });
     const headers = new Headers(); object.writeHttpMetadata(headers); headers.set("Cache-Control", "private, no-store"); headers.set("X-Content-Type-Options", "nosniff"); headers.set("Content-Disposition", `inline; filename*=UTF-8''${encodeURIComponent(asString(row.delivery_file_name) || "ma-chanson.mp3")}`);
     return new Response(object.body, { headers });
   }
@@ -1809,9 +1810,9 @@ async function handleApi(request: Request, env: Env, url: URL, ctx: ExecutionCon
   if (url.pathname.startsWith("/api/delivery-download/") && request.method === "GET") {
     const token = decodeURIComponent(url.pathname.slice("/api/delivery-download/".length));
     const row = await env.DB.prepare("SELECT id,delivery_file_key,delivery_file_name FROM mhc_orders WHERE delivery_token=?").bind(token).first<Record<string, unknown>>();
-    if (!row || !asString(row.delivery_file_key)) return new Response("Fichier introuvable", { status: 404 });
+    if (!row || !asString(row.delivery_file_key)) return new Response("Datei nicht gefunden", { status: 404 });
     const object = await env.MEDIA.get(asString(row.delivery_file_key));
-    if (!object) return new Response("Fichier introuvable", { status: 404 });
+    if (!object) return new Response("Datei nicht gefunden", { status: 404 });
     if (url.searchParams.get("preview") !== "1") await env.DB.prepare("UPDATE mhc_orders SET delivery_downloaded_at=COALESCE(delivery_downloaded_at,CURRENT_TIMESTAMP),updated_at=CURRENT_TIMESTAMP WHERE id=?").bind(asString(row.id)).run();
     const headers = new Headers(); object.writeHttpMetadata(headers); headers.set("Cache-Control", "private, no-store"); headers.set("X-Content-Type-Options", "nosniff"); headers.set("Content-Disposition", `attachment; filename*=UTF-8''${encodeURIComponent(asString(row.delivery_file_name) || "ma-chanson.mp3")}`);
     return new Response(object.body, { headers });
@@ -1820,20 +1821,20 @@ async function handleApi(request: Request, env: Env, url: URL, ctx: ExecutionCon
   if (url.pathname === "/api/delivery/revisions" && request.method === "POST") {
     const body = await request.json() as { token?: string; revisionType?: string; message?: string; songMoment?: string };
     const token = asString(body.token), message = asString(body.message), revisionType = asString(body.revisionType) || "other", songMoment = asString(body.songMoment);
-    if (!token || !message) return json({ error: "Décrivez la modification souhaitée." }, 400);
-    if (message.length > 4000 || songMoment.length > 300) return json({ error: "Votre message est trop long." }, 400);
-    if (!new Set(["lyrics", "pronunciation", "voice_style", "other"]).has(revisionType)) return json({ error: "Type de révision invalide." }, 400);
+    if (!token || !message) return json({ error: "Beschreibe bitte die gewünschte Änderung." }, 400);
+    if (message.length > 4000 || songMoment.length > 300) return json({ error: "Deine Nachricht ist zu lang." }, 400);
+    if (!new Set(["lyrics", "pronunciation", "voice_style", "other"]).has(revisionType)) return json({ error: "Ungültiger Änderungstyp." }, 400);
     const order = await env.DB.prepare("SELECT o.*,s.answers FROM mhc_orders o LEFT JOIN submissions s ON s.id=o.submission_id WHERE o.delivery_token=?").bind(token).first<Record<string, unknown>>();
-    if (!order) return json({ error: "Commande introuvable." }, 404);
+    if (!order) return json({ error: "Bestellung nicht gefunden." }, 404);
     const count = await env.DB.prepare(`SELECT COUNT(*) AS count,
       SUM(CASE WHEN status IN ('new','in_progress','version_ready') THEN 1 ELSE 0 END) AS open_count
       FROM mhc_revisions WHERE order_id=?`).bind(asString(order.id)).first<{ count: number; open_count: number }>();
     const currentCount = Number(count?.count || 0);
     const openCount = Number(count?.open_count || 0);
     const revisionLimit = revisionLimitForOrder(order);
-    if (revisionLimit === 0) return json({ error: "Cette formule n’inclut pas de révision." }, 403);
-    if (openCount > 0) return json({ error: "Une demande de révision est déjà en cours de traitement." }, 409);
-    if (revisionLimit !== null && currentCount >= revisionLimit) return json({ error: "Le nombre de révisions incluses a été atteint. Écrivez à Justine pour toute question." }, 409);
+    if (revisionLimit === 0) return json({ error: "Dieses Paket enthält keine Überarbeitung." }, 403);
+    if (openCount > 0) return json({ error: "Eine Änderungsanfrage wird bereits bearbeitet." }, 409);
+    if (revisionLimit !== null && currentCount >= revisionLimit) return json({ error: "Die enthaltenen Überarbeitungen sind aufgebraucht. Bei Fragen kannst du Justine schreiben." }, 409);
     const revisionId = crypto.randomUUID();
     await env.DB.batch([
       env.DB.prepare("INSERT INTO mhc_revisions(id,order_id,revision_type,message,song_moment,status,created_at,updated_at) VALUES(?,?,?,?,?,'new',CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)").bind(revisionId, asString(order.id), revisionType, message, songMoment || null),
@@ -1932,7 +1933,7 @@ export default {
     if (url.pathname.startsWith("/livraison/")) return Response.redirect(`${url.origin}/chanson/${encodeURIComponent(decodeURIComponent(url.pathname.slice("/livraison/".length)))}`, 302);
     if (url.pathname.startsWith("/media/")) {
       const object = await env.MEDIA.get(decodeURIComponent(url.pathname.slice(7)));
-      if (!object) return new Response("Fichier introuvable", { status: 404 });
+      if (!object) return new Response("Datei nicht gefunden", { status: 404 });
       const headers = new Headers(); object.writeHttpMetadata(headers); headers.set("etag", object.httpEtag); headers.set("Cache-Control", "public, max-age=31536000, immutable");
       return new Response(object.body, { headers });
     }

@@ -28,7 +28,7 @@ function CookieBanner({ content }: { content: SiteContent }) {
   }
 
   if (!visible) return null;
-  return <div className="cookie-banner" role="dialog" aria-label="Préférences de confidentialité">
+  return <div className="cookie-banner" role="dialog" aria-label="Datenschutzeinstellungen">
     <p>{content.privacy.text}</p>
     <div>
       <button type="button" className="cookie-reject" onClick={() => choose("rejected")}>{content.privacy.rejectLabel}</button>

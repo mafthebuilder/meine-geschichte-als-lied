@@ -5,20 +5,20 @@ import StripePayment from "../components/StripePayment";
 import { trackMetaCustomEvent, trackMetaEvent } from "../lib/meta";
 import { activeOffers, DEFAULT_OFFERS_CONFIG, findOffer, formatOfferPrice } from "../config/offers";
 
-const relations = ["Ma femme", "Mon mari", "Ma copine", "Mon copain", "Ma mère", "Mon père", "Mes enfants", "Frère / Sœur", "Un(e) ami(e)", "Pour moi", "Une personne qui compte"];
+const relations = ["Meine Frau", "Mein Mann", "Meine Freundin", "Mein Freund", "Meine Mutter", "Mein Vater", "Meine Kinder", "Bruder / Schwester", "Ein Freund / eine Freundin", "Für mich", "Ein besonderer Mensch"];
 
 const recipientQuestions: Record<string, string> = {
-  "Ma femme": "Quel est le prénom de votre femme ?",
-  "Mon mari": "Quel est le prénom de votre mari ?",
-  "Ma copine": "Quel est le prénom de votre copine ?",
-  "Mon copain": "Quel est le prénom de votre copain ?",
-  "Ma mère": "Quel est le prénom de votre mère ?",
-  "Mon père": "Quel est le prénom de votre père ?",
-  "Mes enfants": "Quels prénoms souhaitez-vous mettre à l’honneur pour vos enfants ?",
-  "Frère / Sœur": "Quel est le prénom de votre frère ou de votre sœur ?",
-  "Un(e) ami(e)": "Quel est le prénom de votre ami(e) ?",
-  "Pour moi": "Quel prénom souhaitez-vous utiliser dans la chanson ?",
-  "Une personne qui compte": "Quel est le prénom de cette personne ?"
+  "Meine Frau": "Wie heißt deine Frau?",
+  "Mein Mann": "Wie heißt dein Mann?",
+  "Meine Freundin": "Wie heißt deine Freundin?",
+  "Mein Freund": "Wie heißt dein Freund?",
+  "Meine Mutter": "Wie heißt deine Mutter?",
+  "Mein Vater": "Wie heißt dein Vater?",
+  "Meine Kinder": "Welche Namen deiner Kinder sollen im Lied vorkommen?",
+  "Bruder / Schwester": "Wie heißt dein Bruder oder deine Schwester?",
+  "Ein Freund / eine Freundin": "Wie heißt diese Person?",
+  "Für mich": "Welcher Name soll in deinem Lied vorkommen?",
+  "Ein besonderer Mensch": "Wie heißt dieser besondere Mensch?"
 };
 
 function getInitialStep() {
@@ -46,20 +46,20 @@ function getInitialStep() {
 }
 
 const genres = [
-  { label: "Pop moderne", description: "Lumineux & fédérateur", popular: true },
-  { label: "RnB", description: "Sensuel & profond" },
-  { label: "Piano-voix", description: "Intime & bouleversant" },
-  { label: "Chanson française", description: "Élégant & narratif" },
-  { label: "Latino", description: "Chaleureux & rythmé" },
-  { label: "Soul", description: "Puissant & chaleureux" },
-  { label: "Hip-hop", description: "Moderne & percutant" },
-  { label: "Guitare acoustique", description: "Doux & authentique" },
-  { label: "Reggae", description: "Solaire & détendu" },
-  { label: "Méditerranée", description: "Solaire & envoûtant" }
+  { label: "Deutschpop", description: "Emotional & modern", popular: true },
+  { label: "Schlager", description: "Eingängig & gefühlvoll" },
+  { label: "Piano & Gesang", description: "Intim & berührend" },
+  { label: "Singer-Songwriter", description: "Ehrlich & erzählerisch" },
+  { label: "Akustik-Pop", description: "Warm & authentisch" },
+  { label: "Soul & R&B", description: "Gefühlvoll & kraftvoll" },
+  { label: "Rock / Pop", description: "Energiegeladen & emotional" },
+  { label: "Hip-Hop", description: "Modern & direkt" },
+  { label: "Indie-Pop", description: "Leicht & besonders" },
+  { label: "Ballade", description: "Groß & emotional" }
 ];
 
-const voices = ["Voix féminine", "Voix masculine", "Pas de préférence"];
-const qualities = ["Attentionné(e)", "Drôle", "Courageux(se)", "Généreux(se)", "Rassurant(e)", "Passionné(e)", "Loyal(e)", "Tendre", "Inspirant(e)", "Fort(e)", "Solaire", "Authentique"];
+const voices = ["Weibliche Stimme", "Männliche Stimme", "Keine Präferenz"];
+const qualities = ["Fürsorglich", "Humorvoll", "Mutig", "Großzügig", "Verlässlich", "Leidenschaftlich", "Loyal", "Liebevoll", "Inspirierend", "Stark", "Lebensfroh", "Authentisch"];
 const initial: FunnelAnswers = { relation: "", recipientName: "", pronunciation: "", genre: "", voice: "", qualities: [], customQualities: "", memories: "", message: "", offer: "essential", express: false, email: "", consent: true };
 
 function getId() {
@@ -71,7 +71,7 @@ function getId() {
 }
 
 function AnnouncementBar({ text, className }: { text: string; className: string }) {
-  const [offer, delivery = "Livraison rapide"] = text.split(/[·|]/).map(part => part.trim());
+  const [offer, delivery = "Schnelle Lieferung"] = text.split(/[·|]/).map(part => part.trim());
   return <div className={className}><strong>{offer}</strong><span aria-hidden="true" /><strong>{delivery}</strong></div>;
 }
 
@@ -162,7 +162,7 @@ export default function ComposerPage({ content }: { content: SiteContent }) {
         setError("");
         window.history.replaceState({}, "", "/composer");
       })
-      .catch(resumeError => active && setError(resumeError instanceof Error ? resumeError.message : "Impossible de reprendre votre création."))
+      .catch(resumeError => active && setError(resumeError instanceof Error ? resumeError.message : "Dein Entwurf konnte nicht wiederhergestellt werden."))
       .finally(() => active && setLoading(false));
     return () => { active = false; };
   }, []);
@@ -180,16 +180,16 @@ export default function ComposerPage({ content }: { content: SiteContent }) {
   useEffect(() => {
     const highestPrice = Math.max(...activeOffers(offersConfig).map(offer => offer.priceCents), 0) / 100;
     trackMetaEvent("ViewContent", {
-      content_name: "Formulaire chanson personnalisée",
-      content_category: "Chanson personnalisée",
-      content_ids: ["chanson_personnalisee"],
+      content_name: "Formular personalisiertes Lied",
+      content_category: "Personalisiertes Lied",
+      content_ids: ["personalisiertes_lied"],
       content_type: "product",
       value: highestPrice,
       currency: "EUR"
     }, "composer_view", "page");
   }, [offersConfig.version]);
 
-  const name = answers.recipientName || "cette personne";
+  const name = answers.recipientName || "diese Person";
   const visibleOffers = activeOffers(offersConfig);
   const selectedOffer = findOffer(offersConfig, answers.offer);
   const expressAvailable = selectedOffer.expressEligible;
@@ -207,7 +207,7 @@ export default function ComposerPage({ content }: { content: SiteContent }) {
   async function applyPromoCode() {
     const code = promoInput.trim().toUpperCase();
     if (!code) {
-      setPromoMessage("Saisissez votre code promo.");
+      setPromoMessage("Gib deinen Rabattcode ein.");
       return;
     }
     setPromoLoading(true);
@@ -216,10 +216,10 @@ export default function ComposerPage({ content }: { content: SiteContent }) {
       const result = await validatePromoCode({ code, offer: answers.offer, express: expressSelected });
       setAppliedPromo({ code: result.code, percent: result.percent });
       setPromoInput(result.code);
-      setPromoMessage(`Code appliqué · -${result.percent} %`);
+      setPromoMessage(`Code angewendet · -${result.percent} %`);
     } catch (promoError) {
       setAppliedPromo(null);
-      setPromoMessage(promoError instanceof Error ? promoError.message : "Ce code promo n’est pas valide.");
+      setPromoMessage(promoError instanceof Error ? promoError.message : "Dieser Rabattcode ist ungültig.");
     } finally {
       setPromoLoading(false);
     }
@@ -232,18 +232,18 @@ export default function ComposerPage({ content }: { content: SiteContent }) {
   }
 
   function valid() {
-    if (step === 1 && !answers.relation) return "Choisissez un destinataire.";
-    if (step === 2 && !answers.recipientName.trim()) return "Indiquez le prénom du destinataire.";
-    if (step === 3 && !answers.genre) return "Choisissez un style musical.";
-    if (step === 4 && answers.qualities.length === 0 && !answers.customQualities.trim()) return "Choisissez au moins une qualité.";
-    if (step === 5 && answers.memories.trim().length < 20) return "Partagez un souvenir un peu plus détaillé.";
-    if (step === 7 && !canCreate) return "Indiquez un e-mail valide et acceptez les conditions.";
+    if (step === 1 && !answers.relation) return "Wähle aus, für wen das Lied ist.";
+    if (step === 2 && !answers.recipientName.trim()) return "Gib den Namen der Person ein.";
+    if (step === 3 && !answers.genre) return "Wähle einen Musikstil.";
+    if (step === 4 && answers.qualities.length === 0 && !answers.customQualities.trim()) return "Wähle mindestens eine Eigenschaft.";
+    if (step === 5 && answers.memories.trim().length < 20) return "Erzähl uns etwas ausführlicher von einer Erinnerung.";
+    if (step === 7 && !canCreate) return "Gib eine gültige E-Mail-Adresse ein und bestätige die Auswahl.";
     return "";
   }
 
   function selectRelation(relation: string) {
     trackMetaCustomEvent("MHCFormStarted", {
-      content_name: "Formulaire chanson personnalisée",
+      content_name: "Formular personalisiertes Lied",
       funnel_step: 1
     }, `form_started:${submissionId}`);
 
@@ -262,8 +262,8 @@ export default function ComposerPage({ content }: { content: SiteContent }) {
     await saveSubmission(submissionId, answers, step === 7 ? "form_completed" : "progress").catch(() => undefined);
     if (step === 7) {
       trackMetaEvent("Lead", {
-        content_name: "Questionnaire chanson personnalisée terminé",
-        content_category: "Chanson personnalisée"
+        content_name: "Fragebogen personalisiertes Lied abgeschlossen",
+        content_category: "Personalisiertes Lied"
       }, `lead:${submissionId}`);
     }
     setStep(s => Math.min(8, s + 1));
@@ -300,14 +300,14 @@ export default function ComposerPage({ content }: { content: SiteContent }) {
   }
 
   const heading = (() => {
-    if (step === 1) return { eyebrow: "Commençons par l’essentiel", title: <>Pour qui créons-nous cette chanson ?</>, intro: "Choisissez le destinataire de la chanson." };
-    if (step === 2) return { eyebrow: "Son prénom", title: <>{recipientQuestions[answers.relation] || "Quel est le prénom du destinataire ?"}</>, intro: "Ajoutez la prononciation uniquement si le prénom peut être difficile à interpréter." };
-    if (step === 3) return { eyebrow: "L’univers musical", title: <>Quel style ressemble le plus à <span className="name-highlight">{name}</span> ?</>, intro: "Choisissez l’ambiance qui correspond le mieux à votre histoire." };
-    if (step === 4) return { eyebrow: "Sa personnalité", title: <>Qu’est-ce qui rend <span className="name-highlight">{name}</span> unique ?</>, intro: "Sélectionnez les qualités qui le ou la décrivent le mieux." };
-    if (step === 5) return { eyebrow: "Vos souvenirs", title: <>Partagez vos souvenirs avec <span className="name-highlight">{name}</span></>, intro: "Une rencontre, un voyage, une habitude, une épreuve surmontée… Les détails rendent la chanson vraiment personnelle." };
-    if (step === 6) return { eyebrow: "Quelques mots du cœur", title: <>Quel message souhaitez-vous transmettre à <span className="name-highlight">{name}</span> ?</>, intro: "Ajoutez ce que vous aimeriez lui dire. Cette étape reste facultative." };
-    if (step === 7) return { eyebrow: "Dernière vérification", title: <>Tout est prêt pour la chanson de <span className="name-highlight">{name}</span></>, intro: "Indiquez où recevoir la confirmation, puis découvrez quelques chansons créées pour d’autres histoires." };
-    return { eyebrow: "Votre formule", title: <>Choisissez la finition de votre chanson</>, intro: "Sélectionnez la formule qui vous convient avant le paiement sécurisé." };
+    if (step === 1) return { eyebrow: "Fangen wir mit dem Wichtigsten an", title: <>Für wen dürfen wir dieses Lied schreiben?</>, intro: "Wähle die Person aus, für die das Lied bestimmt ist." };
+    if (step === 2) return { eyebrow: "Der Name", title: <>{recipientQuestions[answers.relation] || "Wie heißt die Person?"}</>, intro: "Eine Aussprachehilfe brauchst du nur, wenn der Name nicht eindeutig ausgesprochen wird." };
+    if (step === 3) return { eyebrow: "Die musikalische Welt", title: <>Welcher Stil passt am besten zu <span className="name-highlight">{name}</span>?</>, intro: "Wähle die Stimmung, die am besten zu eurer Geschichte passt." };
+    if (step === 4) return { eyebrow: "Die Persönlichkeit", title: <>Was macht <span className="name-highlight">{name}</span> so besonders?</>, intro: "Wähle die Eigenschaften aus, die diese Person am besten beschreiben." };
+    if (step === 5) return { eyebrow: "Eure Erinnerungen", title: <>Erzähl uns von deinen Erinnerungen mit <span className="name-highlight">{name}</span></>, intro: "Eine Begegnung, eine Reise, ein Ritual, eine gemeinsam gemeisterte Zeit … Gerade die Details machen das Lied persönlich." };
+    if (step === 6) return { eyebrow: "Ein paar Worte von Herzen", title: <>Was möchtest du <span className="name-highlight">{name}</span> mit diesem Lied sagen?</>, intro: "Schreib auf, was du dieser Person gerne sagen möchtest. Dieser Schritt ist freiwillig." };
+    if (step === 7) return { eyebrow: "Fast geschafft", title: <>Alles ist bereit für das Lied von <span className="name-highlight">{name}</span></>, intro: "Gib an, wohin wir die Bestätigung senden sollen, und entdecke anschließend einige Beispiele anderer Geschichten." };
+    return { eyebrow: "Dein Paket", title: <>Wähle das passende Paket für dein Lied</>, intro: "Wähle dein Paket aus, bevor du sicher bezahlst." };
   })();
 
   return <div className="funnel-page">
@@ -315,10 +315,10 @@ export default function ComposerPage({ content }: { content: SiteContent }) {
 
     <header className="funnel-topbar">
       <div className="progress-wrap">
-        <div className="progress-meta"><span>Étape {step} sur 8</span><strong>{Math.round(step / 8 * 100)} %</strong></div>
+        <div className="progress-meta"><span>Schritt {step} von 8</span><strong>{Math.round(step / 8 * 100)} %</strong></div>
         <div className="progress"><i style={{ width: `${step / 8 * 100}%` }} /></div>
       </div>
-      <div className="privacy-pill"><LockIcon /><span>Vos réponses restent privées</span></div>
+      <div className="privacy-pill"><LockIcon /><span>Deine Angaben bleiben privat</span></div>
     </header>
 
     <main className="funnel-shell">
@@ -330,60 +330,60 @@ export default function ComposerPage({ content }: { content: SiteContent }) {
 
       <section className={step === 1 ? "funnel-card recipient-step-card" : "funnel-card"}>
         {step === 1 && <>
-          <label className="field-label">Destinataire</label>
+          <label className="field-label">Für wen?</label>
           <div className="recipient-grid">{relations.map(x => <button type="button" className={answers.relation === x ? "recipient-choice active" : "recipient-choice"} onClick={() => selectRelation(x)} key={x}><span>{x}</span><i aria-hidden="true"><CheckIcon /></i></button>)}</div>
         </>}
 
         {step === 2 && <>
-          <label className="field-label">{answers.relation === "Mes enfants" ? "Prénoms" : "Prénom"}</label>
-          <input className="text-input" autoFocus placeholder={answers.relation === "Mes enfants" ? "Ex. Lina et Adam" : "Entrez son prénom"} value={answers.recipientName} onChange={e => setAnswers(a => ({ ...a, recipientName: e.target.value }))} />
-          <label className="field-label optional">Prononciation <small>Facultatif</small></label>
-          <input className="text-input" placeholder="Ex. Maëlle : ma-èl" value={answers.pronunciation} onChange={e => setAnswers(a => ({ ...a, pronunciation: e.target.value }))} />
+          <label className="field-label">{answers.relation === "Meine Kinder" ? "Namen" : "Name"}</label>
+          <input className="text-input" autoFocus placeholder={answers.relation === "Meine Kinder" ? "z. B. Lina und Adam" : "Name eingeben"} value={answers.recipientName} onChange={e => setAnswers(a => ({ ...a, recipientName: e.target.value }))} />
+          <label className="field-label optional">Aussprache <small>Optional</small></label>
+          <input className="text-input" placeholder="z. B. Maëlle: ma-el" value={answers.pronunciation} onChange={e => setAnswers(a => ({ ...a, pronunciation: e.target.value }))} />
         </>}
 
         {step === 3 && <>
-          <div className="choice-grid genre-grid">{genres.map(genre => <button type="button" className={answers.genre === genre.label ? "choice genre-choice active" : "choice genre-choice"} onClick={() => setAnswers(a => ({ ...a, genre: genre.label }))} key={genre.label}><span>{genre.label}</span><small>{genre.description}</small>{genre.popular && <em>Le plus choisi</em>}</button>)}</div>
-          <label className="field-label optional">Voix préférée <small>Facultatif</small></label>
+          <div className="choice-grid genre-grid">{genres.map(genre => <button type="button" className={answers.genre === genre.label ? "choice genre-choice active" : "choice genre-choice"} onClick={() => setAnswers(a => ({ ...a, genre: genre.label }))} key={genre.label}><span>{genre.label}</span><small>{genre.description}</small>{genre.popular && <em>Am häufigsten gewählt</em>}</button>)}</div>
+          <label className="field-label optional">Bevorzugte Stimme <small>Optional</small></label>
           <div className="choice-grid three">{voices.map(x => <button type="button" className={answers.voice === x ? "choice active" : "choice"} onClick={() => setAnswers(a => ({ ...a, voice: x }))} key={x}>{x}</button>)}</div>
         </>}
 
         {step === 4 && <>
           <div className="chips">{qualities.map(q => <button type="button" onClick={() => toggleQuality(q)} className={answers.qualities.includes(q) ? "chip active" : "chip"} key={q}>{answers.qualities.includes(q) ? "✓ " : "+ "}{q}</button>)}</div>
-          <label className="field-label optional">Vos propres mots <small>Facultatif</small></label>
-          <input className="text-input" placeholder="Ex. toujours présent(e), plein(e) d’énergie..." value={answers.customQualities} onChange={e => setAnswers(a => ({ ...a, customQualities: e.target.value }))} />
+          <label className="field-label optional">Mit deinen eigenen Worten <small>Optional</small></label>
+          <input className="text-input" placeholder="z. B. immer für mich da, voller Energie …" value={answers.customQualities} onChange={e => setAnswers(a => ({ ...a, customQualities: e.target.value }))} />
         </>}
 
         {step === 5 && <>
-          <textarea className="textarea" rows={9} placeholder="Ex. Notre rencontre à Lyon, ce voyage que nous n’oublierons jamais, nos habitudes du dimanche..." value={answers.memories} onChange={e => setAnswers(a => ({ ...a, memories: e.target.value }))} />
-          <div className="inspiration"><strong>Besoin d’inspiration ?</strong><span>Comment vous êtes-vous rencontrés ? Quel moment vous fait toujours sourire ? Quelle date ou quel lieu compte particulièrement ?</span></div>
+          <textarea className="textarea" rows={9} placeholder="z. B. unser Kennenlernen, diese Reise, die wir nie vergessen werden, unsere Sonntagsrituale …" value={answers.memories} onChange={e => setAnswers(a => ({ ...a, memories: e.target.value }))} />
+          <div className="inspiration"><strong>Brauchst du Inspiration?</strong><span>Wie habt ihr euch kennengelernt? Welcher Moment bringt euch immer zum Lächeln? Gibt es ein Datum oder einen Ort, der euch besonders viel bedeutet?</span></div>
         </>}
 
         {step === 6 && <>
-          <textarea className="textarea" rows={8} placeholder="Ex. Merci d’avoir toujours cru en moi..." value={answers.message} onChange={e => setAnswers(a => ({ ...a, message: e.target.value }))} />
-          <div className="inspiration"><strong>Quelques pistes</strong><span>“Je t’aime plus que les mots ne peuvent le dire.” · “Merci d’être toujours là.” · “Je suis fier de tout ce que nous avons construit.”</span></div>
+          <textarea className="textarea" rows={8} placeholder="z. B. Danke, dass du immer an mich geglaubt hast …" value={answers.message} onChange={e => setAnswers(a => ({ ...a, message: e.target.value }))} />
+          <div className="inspiration"><strong>Ein paar Ideen</strong><span>„Ich liebe dich mehr, als Worte sagen können.“ · „Danke, dass du immer für mich da bist.“ · „Ich bin stolz auf alles, was wir gemeinsam aufgebaut haben.“</span></div>
         </>}
 
         {step === 7 && <>
           <div className="verification-summary">
-            <div><span>Pour</span><strong>{name}</strong></div>
-            <div><span>Style</span><strong>{answers.genre}</strong></div>
-            <div><span>Personnalisation</span><strong>{answers.qualities.length || 1} détails clés</strong></div>
+            <div><span>Für</span><strong>{name}</strong></div>
+            <div><span>Stil</span><strong>{answers.genre}</strong></div>
+            <div><span>Persönliche Details</span><strong>{answers.qualities.length || 1} wichtige Angaben</strong></div>
           </div>
 
-          <label className="field-label">Votre adresse e-mail</label>
-          <input className="text-input email-input" type="email" placeholder="vous@exemple.com" value={answers.email} onChange={e => setAnswers(a => ({ ...a, email: e.target.value }))} />
-          <p className="field-help">Votre confirmation et le suivi de création seront envoyés à cette adresse.</p>
-          <label className="consent"><input type="checkbox" checked={answers.consent} onChange={e => setAnswers(a => ({ ...a, consent: e.target.checked }))} /><span>Je veux suivre ma création</span></label>
+          <label className="field-label">Deine E-Mail-Adresse</label>
+          <input className="text-input email-input" type="email" placeholder="du@beispiel.de" value={answers.email} onChange={e => setAnswers(a => ({ ...a, email: e.target.value }))} />
+          <p className="field-help">An diese Adresse senden wir deine Bestätigung und alle Updates zu deinem Lied.</p>
+          <label className="consent"><input type="checkbox" checked={answers.consent} onChange={e => setAnswers(a => ({ ...a, consent: e.target.checked }))} /><span>Ich möchte Updates zu meinem Lied erhalten</span></label>
 
           <div className="reassurance-grid">
-            <div className="reassurance-card"><span><HeartWaveIcon /></span><strong>100 % personnalisée</strong><p>Chaque chanson reprend votre histoire, vos mots et vos souvenirs.</p></div>
-            <div className="reassurance-card"><span><LockIcon /></span><strong>Strictement privée</strong><p>Vos réponses et votre chanson ne sont jamais publiées sans accord.</p></div>
-            <div className="reassurance-card"><span><ShieldIcon /></span><strong>Satisfait ou remboursé</strong><p>Vous êtes protégé par notre garantie selon les conditions annoncées.</p></div>
+            <div className="reassurance-card"><span><HeartWaveIcon /></span><strong>100 % persönlich</strong><p>Jedes Lied basiert auf eurer Geschichte, deinen Worten und euren Erinnerungen.</p></div>
+            <div className="reassurance-card"><span><LockIcon /></span><strong>Streng privat</strong><p>Deine Angaben und dein Lied werden niemals ohne Zustimmung veröffentlicht.</p></div>
+            <div className="reassurance-card"><span><ShieldIcon /></span><strong>Geld-zurück-Garantie</strong><p>Du bist gemäß unseren veröffentlichten Bedingungen durch unsere Garantie abgesichert.</p></div>
           </div>
         </>}
 
         {step === 8 && <>
-          <div className="order-ready"><span><SparklesIcon /></span><div><small>Votre création est prête à être lancée</small><strong>Chanson personnalisée pour {name}</strong><p>Confirmation envoyée à {answers.email}</p></div></div>
+          <div className="order-ready"><span><SparklesIcon /></span><div><small>Alles ist bereit</small><strong>Persönliches Lied für {name}</strong><p>Bestätigung an {answers.email}</p></div></div>
           <div className={`offer-grid offer-grid-${visibleOffers.length}`}>
             {visibleOffers.map(offer => <button
               type="button"
@@ -395,45 +395,45 @@ export default function ComposerPage({ content }: { content: SiteContent }) {
               ].filter(Boolean).join(" ")}
               onClick={() => setAnswers(current => ({ ...current, offer: offer.id, express: offer.expressEligible ? current.express : false }))}
             >
-              {offer.recommended && <em>Recommandée</em>}
+              {offer.recommended && <em>Empfohlen</em>}
               <span>{offer.name}</span>
               <div className="offer-price-line">
                 {offer.compareAtCents ? <del>{formatOfferPrice(offer.compareAtCents)}</del> : <del className="offer-price-placeholder" aria-hidden="true">—</del>}
-                <small>Aujourd’hui</small>
+                <small>Heute</small>
               </div>
               <strong>{formatOfferPrice(offer.priceCents)}</strong>
               <ul>{offer.benefits.map((benefit, index) => <li key={`${offer.id}-${index}`}>{benefit}</li>)}</ul>
             </button>)}
           </div>
           {expressAvailable
-            ? <label className={expressSelected ? "express-option active" : "express-option"}><input type="checkbox" checked={expressSelected} onChange={e => setAnswers(a => ({ ...a, express: e.target.checked }))} /><span>⚡ Livraison Express 24 h</span><strong>+{formatOfferPrice(offersConfig.expressPriceCents)}</strong></label>
-            : <div className="express-option active express-included"><span>⚡ Livraison prioritaire 24 h incluse</span><strong>Inclus</strong></div>}
+            ? <label className={expressSelected ? "express-option active" : "express-option"}><input type="checkbox" checked={expressSelected} onChange={e => setAnswers(a => ({ ...a, express: e.target.checked }))} /><span>⚡ Express-Lieferung in 24 Std.</span><strong>+{formatOfferPrice(offersConfig.expressPriceCents)}</strong></label>
+            : <div className="express-option active express-included"><span>⚡ Priorisierte Lieferung in 24 Std. inklusive</span><strong>Inklusive</strong></div>}
           <div className="total">
             <div className="total-copy">
-              <span>Total</span>
-              {!promoOpen && !appliedPromo && <button type="button" className="promo-toggle" onClick={() => setPromoOpen(true)}>Ajouter un code promo</button>}
+              <span>Gesamt</span>
+              {!promoOpen && !appliedPromo && <button type="button" className="promo-toggle" onClick={() => setPromoOpen(true)}>Rabattcode hinzufügen</button>}
               {(promoOpen || appliedPromo) && <div className="promo-box">
-                {appliedPromo ? <div className="promo-applied"><span>✓ {appliedPromo.code} · -{appliedPromo.percent} %</span><button type="button" onClick={removePromoCode}>Retirer</button></div> : <>
+                {appliedPromo ? <div className="promo-applied"><span>✓ {appliedPromo.code} · -{appliedPromo.percent} %</span><button type="button" onClick={removePromoCode}>Entfernen</button></div> : <>
                   <div className="promo-input-row">
-                    <input aria-label="Code promo" placeholder="Code promo" value={promoInput} onChange={event => setPromoInput(event.target.value.toUpperCase())} onKeyDown={event => { if (event.key === "Enter") { event.preventDefault(); void applyPromoCode(); } }} />
-                    <button type="button" onClick={() => void applyPromoCode()} disabled={promoLoading}>{promoLoading ? "…" : "Appliquer"}</button>
+                    <input aria-label="Rabattcode" placeholder="Rabattcode" value={promoInput} onChange={event => setPromoInput(event.target.value.toUpperCase())} onKeyDown={event => { if (event.key === "Enter") { event.preventDefault(); void applyPromoCode(); } }} />
+                    <button type="button" onClick={() => void applyPromoCode()} disabled={promoLoading}>{promoLoading ? "…" : "Anwenden"}</button>
                   </div>
-                  <button type="button" className="promo-cancel" onClick={() => { setPromoOpen(false); setPromoInput(""); setPromoMessage(""); }}>Annuler</button>
+                  <button type="button" className="promo-cancel" onClick={() => { setPromoOpen(false); setPromoInput(""); setPromoMessage(""); }}>Abbrechen</button>
                 </>}
                 {promoMessage && <small className={appliedPromo ? "promo-message success" : "promo-message"}>{promoMessage}</small>}
               </div>}
             </div>
             <div className="total-prices">
-              {originalTotal > total && <del>{originalTotal.toLocaleString("fr-FR", { style: "currency", currency: "EUR" })}</del>}
-              <strong>{total.toLocaleString("fr-FR", { style: "currency", currency: "EUR" })}</strong>
-              {savings > 0 && <small className="total-savings">Économisez {savings.toLocaleString("fr-FR", { style: "currency", currency: "EUR" })}</small>}
+              {originalTotal > total && <del>{originalTotal.toLocaleString("de-DE", { style: "currency", currency: "EUR" })}</del>}
+              <strong>{total.toLocaleString("de-DE", { style: "currency", currency: "EUR" })}</strong>
+              {savings > 0 && <small className="total-savings">Du sparst {savings.toLocaleString("de-DE", { style: "currency", currency: "EUR" })}</small>}
             </div>
           </div>
 
-          <section className="finish-reviews" aria-label="Avis clients">
+          <section className="finish-reviews" aria-label="Kundenbewertungen">
             <div className="finish-reviews-heading">
-              <div><span className="eyebrow">Ils ont offert leur chanson</span><h2>Leur réaction en dit plus que des mots</h2></div>
-              <div className="review-slider-actions"><span>Glissez pour découvrir</span><button type="button" onClick={() => scrollReviews(-1)} aria-label="Avis précédent">←</button><button type="button" onClick={() => scrollReviews(1)} aria-label="Avis suivant">→</button></div>
+              <div><span className="eyebrow">Sie haben ihr Lied verschenkt</span><h2>Ihre Reaktion sagt mehr als tausend Worte</h2></div>
+              <div className="review-slider-actions"><span>Wischen zum Entdecken</span><button type="button" onClick={() => scrollReviews(-1)} aria-label="Vorherige Bewertung">←</button><button type="button" onClick={() => scrollReviews(1)} aria-label="Nächste Bewertung">→</button></div>
             </div>
             <div className="review-slider" ref={reviewSliderRef}>
               {content.funnel.audioReviews.map((review, index) => <article className="finish-review-card" key={`${review.name}-${index}`}>
@@ -441,14 +441,14 @@ export default function ComposerPage({ content }: { content: SiteContent }) {
                   <div className="reaction-video-wrap">{review.video ? <video src={review.video} autoPlay muted loop playsInline preload="metadata" /> : <span>♪</span>}<i aria-hidden="true" /></div>
                   <div><strong>{review.name}</strong><span>{review.country}</span></div>
                 </div>
-                <div className="review-rating"><span className="review-stars" aria-label="5 étoiles"><i>★</i><i>★</i><i>★</i><i>★</i><i>★</i></span><span className="review-verified">✓ Vérifié</span></div>
+                <div className="review-rating"><span className="review-stars" aria-label="5 Sterne"><i>★</i><i>★</i><i>★</i><i>★</i><i>★</i></span><span className="review-verified">✓ Verifiziert</span></div>
                 <h3>{review.title}</h3>
                 <p>« {review.quote} »</p>
-                <button type="button" className="review-audio-button" disabled={!review.audio} onClick={() => toggleReview(index, review.audio)}><span><PlayIcon paused={playingReview !== index} /></span><div><strong>{playingReview === index ? "Mettre en pause" : "Écouter leur chanson"}</strong><small>{review.occasion} · {review.audio ? review.duration : "Bientôt disponible"}</small></div></button>
+                <button type="button" className="review-audio-button" disabled={!review.audio} onClick={() => toggleReview(index, review.audio)}><span><PlayIcon paused={playingReview !== index} /></span><div><strong>{playingReview === index ? "Pause" : "Ihr Lied anhören"}</strong><small>{review.occasion} · {review.audio ? review.duration : "Bald verfügbar"}</small></div></button>
                 {review.audio && <audio ref={element => { audioRefs.current[index] = element; }} src={review.audio} onEnded={() => setPlayingReview(null)} />}
               </article>)}
             </div>
-            <div className="review-swipe-hint" aria-hidden="true"><span /><span /><span /><small>Faites glisser</small></div>
+            <div className="review-swipe-hint" aria-hidden="true"><span /><span /><span /><small>Wischen</small></div>
           </section>
 
           <StripePayment submissionId={submissionId} answers={{ ...answers, express: expressSelected }} total={total} recipientName={name} offer={selectedOffer} offerConfigVersion={offersConfig.version} expressPriceCents={offersConfig.expressPriceCents} promoCode={appliedPromo?.code || ""} />
@@ -456,14 +456,14 @@ export default function ComposerPage({ content }: { content: SiteContent }) {
 
         {error && <div className="error-message">{error}</div>}
         {step !== 1 && <div className={step === 8 ? "funnel-actions payment-back-action" : "funnel-actions"}>
-          <button type="button" className="back-button" onClick={() => { setError(""); setLoading(false); setStep(s => s - 1); }}>← Retour</button>
+          <button type="button" className="back-button" onClick={() => { setError(""); setLoading(false); setStep(s => s - 1); }}>← Zurück</button>
           {step !== 8 && <button type="button" className="button next-button" onClick={next} disabled={loading || (step === 7 && !canCreate)}>
-            {loading ? "Chargement…" : step === 7 ? <><SparklesIcon /> Créer ma chanson</> : <>Continuer <span aria-hidden="true">→</span></>}
+            {loading ? "Laden …" : step === 7 ? <><SparklesIcon /> Mein Lied erstellen</> : <>Weiter <span aria-hidden="true">→</span></>}
           </button>}
         </div>}
       </section>
     </main>
 
-    <footer className="funnel-footer">Besoin d’aide ? <a href={`mailto:${content.brand.supportEmail}`}>{content.brand.supportEmail}</a></footer>
+    <footer className="funnel-footer">Brauchst du Hilfe? <a href={`mailto:${content.brand.supportEmail}`}>{content.brand.supportEmail}</a></footer>
   </div>;
 }

@@ -30,10 +30,10 @@ export default function PreviewPage({ token }: { token: string }) {
     fetch(`/api/preview/${encodeURIComponent(token)}${previewMode ? "?preview=1" : ""}`)
       .then(async response => {
         const payload = await response.json() as PreviewData & { error?: string };
-        if (!response.ok) throw new Error(payload.error || "Cet extrait n’est plus disponible.");
+        if (!response.ok) throw new Error(payload.error || "Diese Hörprobe ist nicht mehr verfügbar.");
         if (active) setData(payload);
       })
-      .catch(loadError => active && setError(loadError instanceof Error ? loadError.message : "Chargement impossible."))
+      .catch(loadError => active && setError(loadError instanceof Error ? loadError.message : "Die Seite konnte nicht geladen werden."))
       .finally(() => active && setLoading(false));
     return () => { active = false; };
   }, [token, previewMode]);
@@ -41,35 +41,35 @@ export default function PreviewPage({ token }: { token: string }) {
   function togglePlayback() {
     const audio = audioRef.current;
     if (!audio) return;
-    if (audio.paused) audio.play().catch(() => setError("La lecture n’a pas pu démarrer."));
+    if (audio.paused) audio.play().catch(() => setError("Die Wiedergabe konnte nicht gestartet werden."));
     else audio.pause();
   }
 
-  if (loading) return <main className="preview-page preview-state-page"><div className="preview-state-card"><span>♪</span><h1>Votre extrait arrive…</h1><p>Nous préparons votre écoute privée.</p></div></main>;
-  if (!data || error) return <main className="preview-page preview-state-page"><div className="preview-state-card"><span>♪</span><h1>Extrait introuvable</h1><p>{error || "Ce lien n’est plus disponible."}</p><a href="mailto:contact@monhistoirechantee.com">Contacter Justine</a></div></main>;
+  if (loading) return <main className="preview-page preview-state-page"><div className="preview-state-card"><span>♪</span><h1>Deine Hörprobe ist gleich da …</h1><p>Wir bereiten deinen privaten Hörbereich vor.</p></div></main>;
+  if (!data || error) return <main className="preview-page preview-state-page"><div className="preview-state-card"><span>♪</span><h1>Hörprobe nicht gefunden</h1><p>{error || "Dieser Link ist nicht mehr verfügbar."}</p><a href="mailto:kontakt@meinegeschichtealslied.com">Justine kontaktieren</a></div></main>;
 
   return <main className="preview-page">
     <div className="preview-orb preview-orb-one" />
     <div className="preview-orb preview-orb-two" />
-    {previewMode && <div className="preview-admin-banner">Prévisualisation administrateur · aucune consultation client enregistrée</div>}
+    {previewMode && <div className="preview-admin-banner">Admin-Vorschau · kein Kundenaufruf wird erfasst</div>}
 
     <header className="preview-header">
-      <img src={LOGO_URL} alt="Mon Histoire Chantée" />
-      <span>Extrait privé</span>
+      <img src={LOGO_URL} alt="Meine Geschichte als Lied" />
+      <span>Private Hörprobe</span>
     </header>
 
     <section className="preview-shell">
       <div className="preview-copy">
-        <span className="preview-kicker">✦ Nous avons commencé à donner vie à votre histoire</span>
-        <h1>Écoutez les premières secondes de la chanson de <em>{data.recipientName}</em></h1>
-        <p>Bonjour {data.customerFirstName || "à vous"}, vos souvenirs ont déjà commencé à devenir une chanson. Montez le son et imaginez le moment où {data.recipientName} découvrira la version complète.</p>
+        <span className="preview-kicker">✦ Eure Geschichte beginnt, zum Lied zu werden</span>
+        <h1>Hör dir die ersten Sekunden des Liedes für <em>{data.recipientName}</em> an</h1>
+        <p>Hallo {data.customerFirstName || "du"}, eure Erinnerungen beginnen bereits, zu einem Lied zu werden. Dreh den Ton auf und stell dir den Moment vor, in dem {data.recipientName} die vollständige Version hört.</p>
       </div>
 
       <article className="preview-player-card">
         <div className="preview-player-heading">
           <span className="preview-music-mark">♪</span>
-          <div><small>Extrait personnalisé</small><h2>Pour {data.recipientName}</h2></div>
-          <span className="preview-private-pill">Privé</span>
+          <div><small>Persönliche Hörprobe</small><h2>Für {data.recipientName}</h2></div>
+          <span className="preview-private-pill">Privat</span>
         </div>
 
         <div className="preview-wave" aria-hidden="true">
@@ -79,7 +79,7 @@ export default function PreviewPage({ token }: { token: string }) {
         <audio ref={audioRef} src={data.audioUrl} preload="metadata" onLoadedMetadata={event => setDuration(event.currentTarget.duration || 0)} onTimeUpdate={event => setCurrentTime(event.currentTarget.currentTime)} onPlay={() => setPlaying(true)} onPause={() => setPlaying(false)} onEnded={() => setPlaying(false)} />
 
         <div className="preview-controls">
-          <button type="button" onClick={togglePlayback} aria-label={playing ? "Mettre en pause" : "Écouter l’extrait"}>{playing ? "Ⅱ" : "▶"}</button>
+          <button type="button" onClick={togglePlayback} aria-label={playing ? "Pause" : "Hörprobe anhören"}>{playing ? "Ⅱ" : "▶"}</button>
           <div>
             <input type="range" min="0" max={duration || 1} step="0.1" value={Math.min(currentTime, duration || 1)} onChange={event => { const value = Number(event.target.value); if (audioRef.current) audioRef.current.currentTime = value; setCurrentTime(value); }} />
             <div><span>{formatTime(currentTime)}</span><span>{formatTime(duration)}</span></div>
@@ -88,16 +88,16 @@ export default function PreviewPage({ token }: { token: string }) {
       </article>
 
       <section className="preview-cta-card">
-        <span>Votre histoire mérite sa version complète</span>
-        <h2>Le plus beau moment reste à créer.</h2>
-        <p>Vos réponses sont sauvegardées. Vous retrouvez directement votre formule et pouvez finaliser en moins d’une minute.</p>
-        <a href={data.resumeUrl}>Découvrir la chanson complète <b>✦</b></a>
-        <small>Paiement sécurisé · Sans abonnement · Satisfait ou remboursé</small>
+        <span>Eure Geschichte verdient die vollständige Version</span>
+        <h2>Der schönste Moment kommt erst noch.</h2>
+        <p>Deine Angaben sind gespeichert. Du gelangst direkt zurück zu deinem Paket und kannst die Bestellung in weniger als einer Minute abschließen.</p>
+        <a href={data.resumeUrl}>Vollständiges Lied entdecken <b>✦</b></a>
+        <small>Sichere Zahlung · Kein Abo · Geld-zurück-Garantie</small>
       </section>
 
       <footer className="preview-footer">
-        <img src={LOGO_URL} alt="Mon Histoire Chantée" />
-        <p>Une question ? <a href="mailto:contact@monhistoirechantee.com">Écrivez à Justine</a></p>
+        <img src={LOGO_URL} alt="Meine Geschichte als Lied" />
+        <p>Eine Frage? <a href="mailto:kontakt@meinegeschichtealslied.com">Schreib Justine</a></p>
       </footer>
     </section>
   </main>;
