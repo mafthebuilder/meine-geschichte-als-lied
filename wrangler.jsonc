@@ -1,6 +1,6 @@
 {
   "$schema": "./node_modules/wrangler/config-schema.json",
-  "name": "mon-histoire-chantee",
+  "name": "meine-geschichte-als-lied",
   "main": "worker/index.ts",
   "compatibility_date": "2026-07-26",
   "assets": {
@@ -10,26 +10,14 @@
   "d1_databases": [
     {
       "binding": "DB",
-      "database_name": "mon-histoire-chantee-db",
-      "database_id": "06586181-7888-4ca1-86b8-c3ae60c90da2"
+      "database_name": "meine-geschichte-als-lied-db",
+      "database_id": "18db61e3-7bd7-44d3-b894-4d9ec7b13003"
     }
   ],
   "r2_buckets": [
     {
       "binding": "MEDIA",
-      "bucket_name": "mon-histoire-chantee-media"
-    }
-  ],
-  "vars": {
-    "SHOPIFY_STORE_DOMAIN": "monhistoirechantee.myshopify.com",
-    "SHOPIFY_API_VERSION": "2026-04"
-  },
-  "send_email": [
-    {
-      "name": "EMAIL",
-      "allowed_sender_addresses": [
-        "contact@monhistoirechantee.com"
-      ]
+      "bucket_name": "meine-geschichte-als-lied-media"
     }
   ]
 }
