@@ -7,6 +7,7 @@ import ComposerPage from "./pages/ComposerPage";
 import AdminPage from "./pages/AdminPage";
 import DeliveryPage from "./pages/DeliveryPage";
 import PreviewPage from "./pages/PreviewPage";
+import LegalPage from "./pages/LegalPage";
 import { trackAnalyticsEvent } from "./lib/analytics";
 import type { SiteContent } from "./types";
 
@@ -73,6 +74,9 @@ export default function App() {
   }, [content]);
 
   if (path === "/admin") return <AdminPage content={content} onChange={setContent} />;
+  if (["/agb", "/impressum", "/widerruf", "/datenschutz"].includes(path)) {
+    return <><LegalPage path={path} content={content} /><CookieBanner content={content} /></>;
+  }
   if (path.startsWith("/chanson/")) {
     const token = decodeURIComponent(path.slice("/chanson/".length));
     return <DeliveryPage token={token} />;

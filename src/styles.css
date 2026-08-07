@@ -966,3 +966,39 @@ footer .brand-logo-image{
   .offer-admin-fields{grid-template-columns:1fr}
   .offer-admin-fields .wide,.offer-checkbox{grid-column:auto}
 }
+
+
+/* Legal pages */
+.legal-page{min-height:100vh;display:flex;flex-direction:column;background:var(--background)}
+.legal-header{min-height:88px;display:flex;align-items:center;justify-content:space-between;gap:24px;border-bottom:1px solid var(--border)}
+.legal-header .brand-logo-image{height:54px;width:auto}
+.legal-back{font-size:14px;font-weight:800;color:var(--primary)}
+.legal-main{padding:54px 0 78px}
+.legal-card{max-width:880px;margin:0 auto;background:#fff;border:1px solid var(--border);border-radius:28px;padding:clamp(28px,5vw,58px);box-shadow:0 18px 55px rgba(69,38,46,.08)}
+.legal-kicker{margin:0 0 10px;color:var(--primary);font-size:12px;font-weight:900;letter-spacing:.12em;text-transform:uppercase}
+.legal-card h1{margin:0;font-family:Georgia,"Times New Roman",serif;font-size:clamp(34px,5vw,54px);font-weight:500;line-height:1.05;letter-spacing:-.03em}
+.legal-updated{margin:12px 0 42px;color:#74686b;font-size:14px}
+.legal-section{padding:25px 0;border-top:1px solid var(--border)}
+.legal-section:first-of-type{border-top:0;padding-top:0}
+.legal-section h2{margin:0 0 14px;font-family:Georgia,"Times New Roman",serif;font-size:24px;font-weight:600;line-height:1.25}
+.legal-paragraph,.legal-section li{font-size:15.5px;line-height:1.72;color:#4f4548}
+.legal-paragraph{margin:0 0 14px}
+.legal-section ul{margin:8px 0 18px;padding-left:22px}
+.legal-section li+li{margin-top:7px}
+.legal-footer{margin-top:auto;background:#351e27;color:#fff}
+.legal-footer-inner{min-height:92px;display:flex;align-items:center;justify-content:space-between;gap:24px;font-size:13px}
+.legal-footer nav{display:flex;gap:18px;flex-wrap:wrap;justify-content:flex-end}
+.legal-footer a:hover{text-decoration:underline}
+@media (max-width:700px){
+  .legal-header{min-height:74px}
+  .legal-header .brand-logo-image{height:44px}
+  .legal-back{font-size:13px}
+  .legal-main{padding:28px 0 52px}
+  .legal-card{border-radius:20px;padding:24px 20px}
+  .legal-updated{margin-bottom:30px}
+  .legal-section{padding:22px 0}
+  .legal-section h2{font-size:21px}
+  .legal-paragraph,.legal-section li{font-size:15px}
+  .legal-footer-inner{padding:24px 0;align-items:flex-start;flex-direction:column}
+  .legal-footer nav{justify-content:flex-start;gap:12px 16px}
+}
