@@ -376,8 +376,8 @@ function offerNameForOrder(row: Record<string, unknown>) {
   if (configured) return configured;
   const offer = asString(row.selected_offer);
   if (offer === "premium") return "Premium";
-  if (offer === "discovery") return "Découverte";
-  return "Essentiel";
+  if (offer === "discovery") return "Starter";
+  return "Basis";
 }
 
 function parseAnswers(value: unknown): Answers | null {
@@ -986,26 +986,30 @@ function stripeOrderConfirmationHtml(params: {
   amountCents: number;
   orderName: string;
 }) {
-  const logo = "https://cdn.shopify.com/s/files/1/1094/5658/9138/files/Logov2-nobg_ea620d66-5432-4114-a214-109012b35880.png?v=1785951795";
+  const logo = "https://meinegeschichtealslied.com/mhc-logo-v2.png";
   const customer = escapeHtml(params.customerFirstName);
   const recipient = escapeHtml(params.recipientName || "einen besonderen Menschen");
   const revisionLabel = params.revisionLimit === null
-    ? "Révisions illimitées"
+    ? "Unbegrenzte Änderungsrunden"
     : params.revisionLimit === 0
-      ? "Sans révision incluse"
-      : `${params.revisionLimit} révision${params.revisionLimit > 1 ? "s" : ""} incluse${params.revisionLimit > 1 ? "s" : ""}`;
+      ? "Keine Änderungsrunde inklusive"
+      : params.revisionLimit === 1
+        ? "1 Änderungsrunde inklusive"
+        : `${params.revisionLimit} Änderungsrunden inklusive`;
   const offer = `${params.offerName} · ${revisionLabel}`;
   const deliveryDays = Math.max(1, Math.round(params.deliveryHours / 24));
-  const delivery = params.deliveryHours <= 24 ? "Livraison prioritaire sous 24 h" : `Livraison sous ${deliveryDays} jours`;
-  const amount = new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR" }).format(params.amountCents / 100);
-  return `<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="x-apple-disable-message-reformatting"><title>Commande confirmée</title></head>
-<body style="margin:0;padding:0;background:#fffaf6;color:#2c2023;"><div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent;">Votre paiement est confirmé. La chanson de ${recipient} entre en création.</div>
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:radial-gradient(circle at 88% 4%,rgba(181,60,108,.17),transparent 25%),linear-gradient(180deg,#fffaf7,#f8efec);"><tr><td align="center" style="padding:30px 12px 42px;"><table role="presentation" width="640" cellpadding="0" cellspacing="0" style="width:640px;max-width:100%;"><tr><td align="center" style="padding:0 16px 22px;"><img src="${logo}" width="220" alt="Mon Histoire Chantée" style="display:block;width:220px;max-width:72%;height:auto;border:0;"></td></tr>
-<tr><td style="overflow:hidden;border:1px solid rgba(111,51,69,.13);border-radius:32px;background:radial-gradient(circle at 88% 8%,rgba(240,217,217,.85),transparent 26%),linear-gradient(145deg,#fff,#fff8fa);box-shadow:0 24px 70px rgba(69,38,46,.14);"><table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td style="height:8px;background:linear-gradient(90deg,#6f3345,#b53c6c,#6f3345);font-size:0;line-height:0;">&nbsp;</td></tr><tr><td style="padding:43px 44px 39px;"><span style="display:inline-block;padding:8px 13px;border-radius:999px;background:linear-gradient(135deg,#f7dca8,#e8ba69);color:#684616;font-family:Arial,sans-serif;font-size:10px;font-weight:900;letter-spacing:.09em;text-transform:uppercase;">✓ Paiement confirmé</span>
-<h1 style="margin:20px 0 17px;font-family:Georgia,'Times New Roman',serif;font-size:43px;line-height:1.04;font-weight:500;letter-spacing:-.03em;color:#2c2023;">La chanson de <span style="color:#a23463;font-style:italic;">${recipient}</span> entre en création.</h1><p style="margin:0;font-family:Arial,sans-serif;font-size:17px;line-height:1.72;color:#675b5e;">Bonjour${customer ? ` ${customer}` : ""},</p><p style="margin:15px 0 0;font-family:Arial,sans-serif;font-size:17px;line-height:1.72;color:#675b5e;">Votre commande est bien enregistrée. Justine et l’équipe vont maintenant transformer vos souvenirs et vos mots en une chanson entièrement personnalisée.</p>
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-top:27px;border-radius:22px;background:linear-gradient(135deg,#8f3158,#5e273e);box-shadow:0 20px 44px rgba(92,35,58,.24);"><tr><td style="padding:23px 24px;color:#fff;font-family:Arial,sans-serif;"><div style="font-size:11px;font-weight:900;letter-spacing:.11em;text-transform:uppercase;color:#f1c98e;">${escapeHtml(params.orderName)}</div><div style="margin-top:11px;font-family:Georgia,'Times New Roman',serif;font-size:25px;">${escapeHtml(offer)}</div><div style="margin-top:9px;font-size:14px;color:#f5e7ec;">${escapeHtml(delivery)}</div><div style="margin-top:17px;padding-top:15px;border-top:1px solid rgba(255,255,255,.18);font-size:18px;font-weight:900;">Total payé : ${escapeHtml(amount)}</div></td></tr></table>
-<p style="margin:26px 0 0;font-family:Georgia,'Times New Roman',serif;font-size:23px;line-height:1.45;color:#3b2930;text-align:center;">Vous n’avez plus rien à faire. Nous vous écrirons dès que votre chanson sera prête.</p><p style="margin:28px 0 0;padding-top:22px;border-top:1px solid #e7dcd7;font-family:Arial,sans-serif;font-size:15px;line-height:1.68;color:#675b5e;"><strong style="color:#2c2023;">Justine</strong><br><span style="color:#9b6378;">Mon Histoire Chantée</span></p></td></tr></table></td></tr>
-<tr><td align="center" style="padding:23px 22px 0;font-family:Arial,sans-serif;font-size:11px;line-height:1.6;color:#887a7e;">Une question ? Répondez directement à cet e-mail ou écrivez à <a href="mailto:contact@monhistoirechantee.com" style="color:#6f3345;text-decoration:underline;">contact@monhistoirechantee.com</a>.</td></tr></table></td></tr></table></body></html>`;
+  const delivery = params.deliveryHours <= 24
+    ? "Fertigstellung innerhalb von 24 Stunden"
+    : `Fertigstellung innerhalb von ${deliveryDays} Tagen`;
+  const amount = new Intl.NumberFormat("de-DE", { style: "currency", currency: "EUR" }).format(params.amountCents / 100);
+  return `<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="x-apple-disable-message-reformatting"><title>Bestellung bestätigt</title></head>
+<body style="margin:0;padding:0;background:#fffaf6;color:#2c2023;"><div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent;">Deine Zahlung ist bestätigt. Der Song für ${recipient} geht jetzt in die Produktion.</div>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:radial-gradient(circle at 88% 4%,rgba(181,60,108,.17),transparent 25%),linear-gradient(180deg,#fffaf7,#f8efec);"><tr><td align="center" style="padding:30px 12px 42px;"><table role="presentation" width="640" cellpadding="0" cellspacing="0" style="width:640px;max-width:100%;"><tr><td align="center" style="padding:0 16px 22px;"><img src="${logo}" width="220" alt="Meine Geschichte als Lied" style="display:block;width:220px;max-width:72%;height:auto;border:0;"></td></tr>
+<tr><td style="overflow:hidden;border:1px solid rgba(111,51,69,.13);border-radius:32px;background:radial-gradient(circle at 88% 8%,rgba(240,217,217,.85),transparent 26%),linear-gradient(145deg,#fff,#fff8fa);box-shadow:0 24px 70px rgba(69,38,46,.14);"><table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td style="height:8px;background:linear-gradient(90deg,#6f3345,#b53c6c,#6f3345);font-size:0;line-height:0;">&nbsp;</td></tr><tr><td style="padding:43px 44px 39px;"><span style="display:inline-block;padding:8px 13px;border-radius:999px;background:linear-gradient(135deg,#f7dca8,#e8ba69);color:#684616;font-family:Arial,sans-serif;font-size:10px;font-weight:900;letter-spacing:.09em;text-transform:uppercase;">✓ Zahlung bestätigt</span>
+<h1 style="margin:20px 0 17px;font-family:Georgia,'Times New Roman',serif;font-size:43px;line-height:1.04;font-weight:500;letter-spacing:-.03em;color:#2c2023;">Der Song für <span style="color:#a23463;font-style:italic;">${recipient}</span> nimmt jetzt Gestalt an.</h1><p style="margin:0;font-family:Arial,sans-serif;font-size:17px;line-height:1.72;color:#675b5e;">Hallo${customer ? ` ${customer}` : ""},</p><p style="margin:15px 0 0;font-family:Arial,sans-serif;font-size:17px;line-height:1.72;color:#675b5e;">Deine Bestellung ist bei uns angekommen. Lena und unser Team machen sich jetzt daran, aus deinen Erinnerungen und Worten einen ganz persönlichen Song zu schaffen.</p>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-top:27px;border-radius:22px;background:linear-gradient(135deg,#8f3158,#5e273e);box-shadow:0 20px 44px rgba(92,35,58,.24);"><tr><td style="padding:23px 24px;color:#fff;font-family:Arial,sans-serif;"><div style="font-size:11px;font-weight:900;letter-spacing:.11em;text-transform:uppercase;color:#f1c98e;">${escapeHtml(params.orderName)}</div><div style="margin-top:11px;font-family:Georgia,'Times New Roman',serif;font-size:25px;">${escapeHtml(offer)}</div><div style="margin-top:9px;font-size:14px;color:#f5e7ec;">${escapeHtml(delivery)}</div><div style="margin-top:17px;padding-top:15px;border-top:1px solid rgba(255,255,255,.18);font-size:18px;font-weight:900;">Bezahlt: ${escapeHtml(amount)}</div></td></tr></table>
+<p style="margin:26px 0 0;font-family:Georgia,'Times New Roman',serif;font-size:23px;line-height:1.45;color:#3b2930;text-align:center;">Du musst jetzt nichts weiter tun. Wir melden uns, sobald dein Song fertig ist.</p><p style="margin:28px 0 0;padding-top:22px;border-top:1px solid #e7dcd7;font-family:Arial,sans-serif;font-size:15px;line-height:1.68;color:#675b5e;"><strong style="color:#2c2023;">Lena</strong><br><span style="color:#9b6378;">Meine Geschichte als Lied</span></p></td></tr></table></td></tr>
+<tr><td align="center" style="padding:23px 22px 0;font-family:Arial,sans-serif;font-size:11px;line-height:1.6;color:#887a7e;">Noch Fragen? Antworte einfach auf diese E-Mail oder schreibe uns an <a href="mailto:kontakt@meinegeschichtealslied.com" style="color:#6f3345;text-decoration:underline;">kontakt@meinegeschichtealslied.com</a>.</td></tr></table></td></tr></table></body></html>`;
 }
 
 async function sendStripeOrderConfirmation(
@@ -1017,14 +1021,18 @@ async function sendStripeOrderConfirmation(
   const email = options.recipientEmail || asString(order.email);
   if (!email) throw new Error("Adresse e-mail client manquante.");
   const recipientName = asString(answers.recipientName) || "einen besonderen Menschen";
-  const customerFirstName = options.isTest ? "Test MHC" : firstName(asString(order.customer_name));
+  const customerFirstName = options.isTest ? "Test" : firstName(asString(order.customer_name));
+  const deliveryText = deliveryHoursForOrder(order) <= 24
+    ? "innerhalb von 24 Stunden"
+    : `innerhalb von ${Math.max(1, Math.round(deliveryHoursForOrder(order) / 24))} Tagen`;
+  const amountText = new Intl.NumberFormat("de-DE", { style: "currency", currency: "EUR" })
+    .format(asInt(order.amount_cents) / 100);
+
   const result = await env.EMAIL.send({
-    // Send the recipient as a plain email string. Cloudflare officially supports
-    // this format and it avoids runtime validation issues with dynamic display names.
     to: email,
-    from: { email: "contact@monhistoirechantee.com", name: "Justine | Mon Histoire Chantée" },
-    replyTo: { email: "contact@monhistoirechantee.com", name: "Justine" },
-    subject: `${options.isTest ? "[TEST] " : ""}Votre commande pour ${recipientName} est confirmée ✨`,
+    from: { email: "kontakt@meinegeschichtealslied.com", name: "Lena | Meine Geschichte als Lied" },
+    replyTo: { email: "kontakt@meinegeschichtealslied.com", name: "Lena" },
+    subject: `${options.isTest ? "[TEST] " : ""}Deine Bestellung für ${recipientName} ist bestätigt ✨`,
     html: stripeOrderConfirmationHtml({
       customerFirstName,
       recipientName,
@@ -1034,7 +1042,7 @@ async function sendStripeOrderConfirmation(
       amountCents: asInt(order.amount_cents),
       orderName: asString(order.order_name)
     }),
-    text: `Bonjour${customerFirstName ? ` ${customerFirstName}` : ""},\n\nVotre paiement est confirmé. La chanson de ${recipientName} entre maintenant en création.\n\nFormule : ${offerNameForOrder(order)}\nLivraison : ${deliveryHoursForOrder(order) <= 24 ? "sous 24 h" : `sous ${Math.round(deliveryHoursForOrder(order) / 24)} jours`}\nTotal payé : ${(asInt(order.amount_cents) / 100).toFixed(2).replace(".", ",")} €\n\nNous vous écrirons dès qu’elle sera prête.\n\nJustine\nMon Histoire Chantée`
+    text: `Hallo${customerFirstName ? ` ${customerFirstName}` : ""},\n\nDeine Zahlung ist bestätigt. Der Song für ${recipientName} geht jetzt in die Produktion.\n\nPaket: ${offerNameForOrder(order)}\nFertigstellung: ${deliveryText}\nBezahlt: ${amountText}\n\nDu musst jetzt nichts weiter tun. Wir melden uns, sobald dein Song fertig ist.\n\nLena\nMeine Geschichte als Lied`
   });
   return result.messageId;
 }
