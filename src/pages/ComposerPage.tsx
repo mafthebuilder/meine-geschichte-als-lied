@@ -372,8 +372,7 @@ export default function ComposerPage({ content }: { content: SiteContent }) {
 
           <label className="field-label">Deine E-Mail-Adresse</label>
           <input className="text-input email-input" type="email" placeholder="du@beispiel.de" value={answers.email} onChange={e => setAnswers(a => ({ ...a, email: e.target.value }))} />
-          <p className="field-help">An diese Adresse schicken wir die Bestätigung und später deinen privaten Lied-Link.</p>
-          <label className="consent"><input type="checkbox" checked={answers.consent} onChange={e => setAnswers(a => ({ ...a, consent: e.target.checked }))} /><span>Ich bestätige, dass meine Angaben zur Erstellung und Zustellung meines Liedes verarbeitet werden dürfen</span></label>
+          <label className="consent"><input type="checkbox" checked={answers.consent} onChange={e => setAnswers(a => ({ ...a, consent: e.target.checked }))} /><span>Ich möchte über den Status meiner Bestellung informiert werden</span></label>
 
           <div className="reassurance-grid">
             <div className="reassurance-card"><span><HeartWaveIcon /></span><strong>Für euch geschrieben</strong><p>Deine Erinnerungen, Namen und persönlichen Details bilden die Grundlage des Liedes.</p></div>

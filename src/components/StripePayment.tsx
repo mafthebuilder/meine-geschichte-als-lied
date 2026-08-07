@@ -349,6 +349,7 @@ export default function StripePayment({ submissionId, answers, total, recipientN
         <div className="stripe-trust-badges" aria-label="Vertrauensmerkmale">
           <span className="stripe-secure-badge">🔒 Sicher mit Stripe</span>
           <span className="stripe-business-badge">✓ Verifiziertes Unternehmen</span>
+          <span className="stripe-business-badge">✓ Kein Abo</span>
         </div>
       </div>
 
