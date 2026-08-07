@@ -60,9 +60,9 @@ export default function PreviewPage({ token }: { token: string }) {
 
     <section className="preview-shell">
       <div className="preview-copy">
-        <span className="preview-kicker">✦ Eure Geschichte beginnt, zum Lied zu werden</span>
-        <h1>Hör dir die ersten Sekunden des Liedes für <em>{data.recipientName}</em> an</h1>
-        <p>Hallo {data.customerFirstName || "du"}, eure Erinnerungen beginnen bereits, zu einem Lied zu werden. Dreh den Ton auf und stell dir den Moment vor, in dem {data.recipientName} die vollständige Version hört.</p>
+        <span className="preview-kicker">✦ Aus euren Erinnerungen wird Musik</span>
+        <h1>Hör dir die ersten Sekunden deines Liedes für <em>{data.recipientName}</em> an</h1>
+        <p>Hallo {data.customerFirstName || "du"}, aus deinen Angaben ist bereits etwas ganz Persönliches entstanden. Dreh den Ton auf und stell dir den Moment vor, in dem {data.recipientName} das vollständige Lied zum ersten Mal hört.</p>
       </div>
 
       <article className="preview-player-card">
@@ -88,10 +88,10 @@ export default function PreviewPage({ token }: { token: string }) {
       </article>
 
       <section className="preview-cta-card">
-        <span>Eure Geschichte verdient die vollständige Version</span>
-        <h2>Der schönste Moment kommt erst noch.</h2>
-        <p>Deine Angaben sind gespeichert. Du gelangst direkt zurück zu deinem Paket und kannst die Bestellung in weniger als einer Minute abschließen.</p>
-        <a href={data.resumeUrl}>Vollständiges Lied entdecken <b>✦</b></a>
+        <span>Die Geschichte ist noch nicht zu Ende</span>
+        <h2>Das vollständige Lied wartet auf seinen großen Moment.</h2>
+        <p>Deine Angaben sind gespeichert. Du kommst direkt zu deiner Auswahl zurück und kannst die Bestellung in wenigen Augenblicken abschließen.</p>
+        <a href={data.resumeUrl}>Vollständiges Lied bestellen <b>✦</b></a>
         <small>Sichere Zahlung · Kein Abo · Geld-zurück-Garantie</small>
       </section>
 

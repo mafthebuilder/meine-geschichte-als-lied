@@ -5,7 +5,7 @@ import StripePayment from "../components/StripePayment";
 import { trackMetaCustomEvent, trackMetaEvent } from "../lib/meta";
 import { activeOffers, DEFAULT_OFFERS_CONFIG, findOffer, formatOfferPrice } from "../config/offers";
 
-const relations = ["Meine Frau", "Mein Mann", "Meine Freundin", "Mein Freund", "Meine Mutter", "Mein Vater", "Meine Kinder", "Bruder / Schwester", "Ein Freund / eine Freundin", "Für mich", "Ein besonderer Mensch"];
+const relations = ["Meine Frau", "Mein Mann", "Meine Freundin", "Mein Freund", "Meine Mutter", "Mein Vater", "Mein Kind / meine Kinder", "Meine Schwester / mein Bruder", "Eine Freundin / ein Freund", "Für mich", "Jemand ganz Besonderes"];
 
 const recipientQuestions: Record<string, string> = {
   "Meine Frau": "Wie heißt deine Frau?",
@@ -14,11 +14,11 @@ const recipientQuestions: Record<string, string> = {
   "Mein Freund": "Wie heißt dein Freund?",
   "Meine Mutter": "Wie heißt deine Mutter?",
   "Mein Vater": "Wie heißt dein Vater?",
-  "Meine Kinder": "Welche Namen deiner Kinder sollen im Lied vorkommen?",
-  "Bruder / Schwester": "Wie heißt dein Bruder oder deine Schwester?",
-  "Ein Freund / eine Freundin": "Wie heißt diese Person?",
+  "Mein Kind / meine Kinder": "Welcher Name oder welche Namen sollen im Lied vorkommen?",
+  "Meine Schwester / mein Bruder": "Wie heißt deine Schwester oder dein Bruder?",
+  "Eine Freundin / ein Freund": "Wie heißt diese Person?",
   "Für mich": "Welcher Name soll in deinem Lied vorkommen?",
-  "Ein besonderer Mensch": "Wie heißt dieser besondere Mensch?"
+  "Jemand ganz Besonderes": "Wie heißt dieser besondere Mensch?"
 };
 
 function getInitialStep() {
@@ -46,16 +46,16 @@ function getInitialStep() {
 }
 
 const genres = [
-  { label: "Deutschpop", description: "Emotional & modern", popular: true },
-  { label: "Schlager", description: "Eingängig & gefühlvoll" },
-  { label: "Piano & Gesang", description: "Intim & berührend" },
+  { label: "Deutschpop", description: "Modern & gefühlvoll", popular: true },
+  { label: "Schlager", description: "Melodisch & emotional" },
+  { label: "Piano-Ballade", description: "Intim & berührend" },
   { label: "Singer-Songwriter", description: "Ehrlich & erzählerisch" },
-  { label: "Akustik-Pop", description: "Warm & authentisch" },
-  { label: "Soul & R&B", description: "Gefühlvoll & kraftvoll" },
-  { label: "Rock / Pop", description: "Energiegeladen & emotional" },
-  { label: "Hip-Hop", description: "Modern & direkt" },
-  { label: "Indie-Pop", description: "Leicht & besonders" },
-  { label: "Ballade", description: "Groß & emotional" }
+  { label: "Akustik-Pop", description: "Warm & natürlich" },
+  { label: "Pop / Rock", description: "Kraftvoll & mitreißend" },
+  { label: "Soul & R&B", description: "Warm & ausdrucksstark" },
+  { label: "Indie-Pop", description: "Modern & besonders" },
+  { label: "Hip-Hop / Deutschrap", description: "Direkt & persönlich" },
+  { label: "Große Ballade", description: "Emotional & intensiv" }
 ];
 
 const voices = ["Weibliche Stimme", "Männliche Stimme", "Keine Präferenz"];
@@ -300,14 +300,14 @@ export default function ComposerPage({ content }: { content: SiteContent }) {
   }
 
   const heading = (() => {
-    if (step === 1) return { eyebrow: "Fangen wir mit dem Wichtigsten an", title: <>Für wen dürfen wir dieses Lied schreiben?</>, intro: "Wähle die Person aus, für die das Lied bestimmt ist." };
-    if (step === 2) return { eyebrow: "Der Name", title: <>{recipientQuestions[answers.relation] || "Wie heißt die Person?"}</>, intro: "Eine Aussprachehilfe brauchst du nur, wenn der Name nicht eindeutig ausgesprochen wird." };
-    if (step === 3) return { eyebrow: "Die musikalische Welt", title: <>Welcher Stil passt am besten zu <span className="name-highlight">{name}</span>?</>, intro: "Wähle die Stimmung, die am besten zu eurer Geschichte passt." };
+    if (step === 1) return { eyebrow: "Fangen wir mit dem Wichtigsten an", title: <>Für wen soll dein Lied sein?</>, intro: "Wähle den Menschen aus, dem du dieses persönliche Lied schenken möchtest." };
+    if (step === 2) return { eyebrow: "Der Name", title: <>{recipientQuestions[answers.relation] || "Wie heißt die Person?"}</>, intro: "Eine Aussprachehilfe ist nur nötig, wenn der Name anders gesprochen wird, als man ihn liest." };
+    if (step === 3) return { eyebrow: "Der passende Sound", title: <>Welche Musik passt am besten zu <span className="name-highlight">{name}</span>?</>, intro: "Wähle den Stil, der die Stimmung eurer Geschichte am besten trifft." };
     if (step === 4) return { eyebrow: "Die Persönlichkeit", title: <>Was macht <span className="name-highlight">{name}</span> so besonders?</>, intro: "Wähle die Eigenschaften aus, die diese Person am besten beschreiben." };
-    if (step === 5) return { eyebrow: "Eure Erinnerungen", title: <>Erzähl uns von deinen Erinnerungen mit <span className="name-highlight">{name}</span></>, intro: "Eine Begegnung, eine Reise, ein Ritual, eine gemeinsam gemeisterte Zeit … Gerade die Details machen das Lied persönlich." };
+    if (step === 5) return { eyebrow: "Eure Erinnerungen", title: <>Welche gemeinsamen Momente sollen im Lied vorkommen?</>, intro: <>Erzähl uns von deiner Zeit mit <span className="name-highlight">{name}</span>: eurem Kennenlernen, einem besonderen Ort, kleinen Ritualen oder Momenten, die ihr nie vergesst.</> };
     if (step === 6) return { eyebrow: "Ein paar Worte von Herzen", title: <>Was möchtest du <span className="name-highlight">{name}</span> mit diesem Lied sagen?</>, intro: "Schreib auf, was du dieser Person gerne sagen möchtest. Dieser Schritt ist freiwillig." };
-    if (step === 7) return { eyebrow: "Fast geschafft", title: <>Alles ist bereit für das Lied von <span className="name-highlight">{name}</span></>, intro: "Gib an, wohin wir die Bestätigung senden sollen, und entdecke anschließend einige Beispiele anderer Geschichten." };
-    return { eyebrow: "Dein Paket", title: <>Wähle das passende Paket für dein Lied</>, intro: "Wähle dein Paket aus, bevor du sicher bezahlst." };
+    if (step === 7) return { eyebrow: "Fast geschafft", title: <>Deine Geschichte für <span className="name-highlight">{name}</span> ist bereit</>, intro: "Gib deine E-Mail-Adresse an. Dorthin senden wir deine Bestätigung und später den privaten Link zu deinem Lied." };
+    return { eyebrow: "Dein Lied, deine Wahl", title: <>Wähle das Paket, das zu dir passt</>, intro: "Du siehst den Gesamtpreis sofort. Es gibt kein Abo und keine versteckten Kosten." };
   })();
 
   return <div className="funnel-page">
@@ -318,7 +318,7 @@ export default function ComposerPage({ content }: { content: SiteContent }) {
         <div className="progress-meta"><span>Schritt {step} von 8</span><strong>{Math.round(step / 8 * 100)} %</strong></div>
         <div className="progress"><i style={{ width: `${step / 8 * 100}%` }} /></div>
       </div>
-      <div className="privacy-pill"><LockIcon /><span>Deine Angaben bleiben privat</span></div>
+      <div className="privacy-pill"><LockIcon /><span>Deine Angaben bleiben vertraulich</span></div>
     </header>
 
     <main className="funnel-shell">
@@ -335,10 +335,10 @@ export default function ComposerPage({ content }: { content: SiteContent }) {
         </>}
 
         {step === 2 && <>
-          <label className="field-label">{answers.relation === "Meine Kinder" ? "Namen" : "Name"}</label>
-          <input className="text-input" autoFocus placeholder={answers.relation === "Meine Kinder" ? "z. B. Lina und Adam" : "Name eingeben"} value={answers.recipientName} onChange={e => setAnswers(a => ({ ...a, recipientName: e.target.value }))} />
+          <label className="field-label">{answers.relation === "Mein Kind / meine Kinder" ? "Namen" : "Name"}</label>
+          <input className="text-input" autoFocus placeholder={answers.relation === "Mein Kind / meine Kinder" ? "z. B. Lina und Adam" : "Name eingeben"} value={answers.recipientName} onChange={e => setAnswers(a => ({ ...a, recipientName: e.target.value }))} />
           <label className="field-label optional">Aussprache <small>Optional</small></label>
-          <input className="text-input" placeholder="z. B. Maëlle: ma-el" value={answers.pronunciation} onChange={e => setAnswers(a => ({ ...a, pronunciation: e.target.value }))} />
+          <input className="text-input" placeholder="z. B. Sean: Schawn" value={answers.pronunciation} onChange={e => setAnswers(a => ({ ...a, pronunciation: e.target.value }))} />
         </>}
 
         {step === 3 && <>
@@ -350,17 +350,17 @@ export default function ComposerPage({ content }: { content: SiteContent }) {
         {step === 4 && <>
           <div className="chips">{qualities.map(q => <button type="button" onClick={() => toggleQuality(q)} className={answers.qualities.includes(q) ? "chip active" : "chip"} key={q}>{answers.qualities.includes(q) ? "✓ " : "+ "}{q}</button>)}</div>
           <label className="field-label optional">Mit deinen eigenen Worten <small>Optional</small></label>
-          <input className="text-input" placeholder="z. B. immer für mich da, voller Energie …" value={answers.customQualities} onChange={e => setAnswers(a => ({ ...a, customQualities: e.target.value }))} />
+          <input className="text-input" placeholder="z. B. immer für mich da, herzlich, voller Energie …" value={answers.customQualities} onChange={e => setAnswers(a => ({ ...a, customQualities: e.target.value }))} />
         </>}
 
         {step === 5 && <>
-          <textarea className="textarea" rows={9} placeholder="z. B. unser Kennenlernen, diese Reise, die wir nie vergessen werden, unsere Sonntagsrituale …" value={answers.memories} onChange={e => setAnswers(a => ({ ...a, memories: e.target.value }))} />
-          <div className="inspiration"><strong>Brauchst du Inspiration?</strong><span>Wie habt ihr euch kennengelernt? Welcher Moment bringt euch immer zum Lächeln? Gibt es ein Datum oder einen Ort, der euch besonders viel bedeutet?</span></div>
+          <textarea className="textarea" rows={9} placeholder="z. B. wie wir uns kennengelernt haben, unsere Reise nach Italien, unser Sonntagsfrühstück …" value={answers.memories} onChange={e => setAnswers(a => ({ ...a, memories: e.target.value }))} />
+          <div className="inspiration"><strong>Was macht die Geschichte persönlich?</strong><span>Wie habt ihr euch kennengelernt? Worüber müsst ihr immer lachen? Gibt es einen Ort, ein Datum, einen Spitznamen oder einen Satz, den nur ihr versteht?</span></div>
         </>}
 
         {step === 6 && <>
           <textarea className="textarea" rows={8} placeholder="z. B. Danke, dass du immer an mich geglaubt hast …" value={answers.message} onChange={e => setAnswers(a => ({ ...a, message: e.target.value }))} />
-          <div className="inspiration"><strong>Ein paar Ideen</strong><span>„Ich liebe dich mehr, als Worte sagen können.“ · „Danke, dass du immer für mich da bist.“ · „Ich bin stolz auf alles, was wir gemeinsam aufgebaut haben.“</span></div>
+          <div className="inspiration"><strong>Falls dir die Worte fehlen</strong><span>„Danke, dass du immer an meiner Seite bist.“ · „Mit dir fühlt sich Zuhause überall gleich an.“ · „Ich bin dankbar für alles, was wir gemeinsam erlebt haben.“</span></div>
         </>}
 
         {step === 7 && <>
@@ -372,18 +372,18 @@ export default function ComposerPage({ content }: { content: SiteContent }) {
 
           <label className="field-label">Deine E-Mail-Adresse</label>
           <input className="text-input email-input" type="email" placeholder="du@beispiel.de" value={answers.email} onChange={e => setAnswers(a => ({ ...a, email: e.target.value }))} />
-          <p className="field-help">An diese Adresse senden wir deine Bestätigung und alle Updates zu deinem Lied.</p>
-          <label className="consent"><input type="checkbox" checked={answers.consent} onChange={e => setAnswers(a => ({ ...a, consent: e.target.checked }))} /><span>Ich möchte Updates zu meinem Lied erhalten</span></label>
+          <p className="field-help">An diese Adresse schicken wir die Bestätigung und später deinen privaten Lied-Link.</p>
+          <label className="consent"><input type="checkbox" checked={answers.consent} onChange={e => setAnswers(a => ({ ...a, consent: e.target.checked }))} /><span>Ich bestätige, dass meine Angaben zur Erstellung und Zustellung meines Liedes verarbeitet werden dürfen</span></label>
 
           <div className="reassurance-grid">
-            <div className="reassurance-card"><span><HeartWaveIcon /></span><strong>100 % persönlich</strong><p>Jedes Lied basiert auf eurer Geschichte, deinen Worten und euren Erinnerungen.</p></div>
-            <div className="reassurance-card"><span><LockIcon /></span><strong>Streng privat</strong><p>Deine Angaben und dein Lied werden niemals ohne Zustimmung veröffentlicht.</p></div>
-            <div className="reassurance-card"><span><ShieldIcon /></span><strong>Geld-zurück-Garantie</strong><p>Du bist gemäß unseren veröffentlichten Bedingungen durch unsere Garantie abgesichert.</p></div>
+            <div className="reassurance-card"><span><HeartWaveIcon /></span><strong>Für euch geschrieben</strong><p>Deine Erinnerungen, Namen und persönlichen Details bilden die Grundlage des Liedes.</p></div>
+            <div className="reassurance-card"><span><LockIcon /></span><strong>Privat & vertraulich</strong><p>Deine Angaben und dein Lied werden nicht ohne deine Zustimmung veröffentlicht.</p></div>
+            <div className="reassurance-card"><span><ShieldIcon /></span><strong>Geld-zurück-Garantie</strong><p>Es gelten die transparent aufgeführten Bedingungen unserer Geld-zurück-Garantie.</p></div>
           </div>
         </>}
 
         {step === 8 && <>
-          <div className="order-ready"><span><SparklesIcon /></span><div><small>Alles ist bereit</small><strong>Persönliches Lied für {name}</strong><p>Bestätigung an {answers.email}</p></div></div>
+          <div className="order-ready"><span><SparklesIcon /></span><div><small>Deine Geschichte ist gespeichert</small><strong>Persönliches Lied für {name}</strong><p>Bestätigung an {answers.email}</p></div></div>
           <div className={`offer-grid offer-grid-${visibleOffers.length}`}>
             {visibleOffers.map(offer => <button
               type="button"
@@ -399,15 +399,15 @@ export default function ComposerPage({ content }: { content: SiteContent }) {
               <span>{offer.name}</span>
               <div className="offer-price-line">
                 {offer.compareAtCents ? <del>{formatOfferPrice(offer.compareAtCents)}</del> : <del className="offer-price-placeholder" aria-hidden="true">—</del>}
-                <small>Heute</small>
+                <small>Aktionspreis</small>
               </div>
               <strong>{formatOfferPrice(offer.priceCents)}</strong>
               <ul>{offer.benefits.map((benefit, index) => <li key={`${offer.id}-${index}`}>{benefit}</li>)}</ul>
             </button>)}
           </div>
           {expressAvailable
-            ? <label className={expressSelected ? "express-option active" : "express-option"}><input type="checkbox" checked={expressSelected} onChange={e => setAnswers(a => ({ ...a, express: e.target.checked }))} /><span>⚡ Express-Lieferung in 24 Std.</span><strong>+{formatOfferPrice(offersConfig.expressPriceCents)}</strong></label>
-            : <div className="express-option active express-included"><span>⚡ Priorisierte Lieferung in 24 Std. inklusive</span><strong>Inklusive</strong></div>}
+            ? <label className={expressSelected ? "express-option active" : "express-option"}><input type="checkbox" checked={expressSelected} onChange={e => setAnswers(a => ({ ...a, express: e.target.checked }))} /><span>⚡ Lieferung in 24 Std.</span><strong>+{formatOfferPrice(offersConfig.expressPriceCents)}</strong></label>
+            : <div className="express-option active express-included"><span>⚡ Lieferung in 24 Std. bereits inklusive</span><strong>Inklusive</strong></div>}
           <div className="total">
             <div className="total-copy">
               <span>Gesamt</span>
@@ -432,8 +432,8 @@ export default function ComposerPage({ content }: { content: SiteContent }) {
 
           <section className="finish-reviews" aria-label="Kundenbewertungen">
             <div className="finish-reviews-heading">
-              <div><span className="eyebrow">Sie haben ihr Lied verschenkt</span><h2>Ihre Reaktion sagt mehr als tausend Worte</h2></div>
-              <div className="review-slider-actions"><span>Wischen zum Entdecken</span><button type="button" onClick={() => scrollReviews(-1)} aria-label="Vorherige Bewertung">←</button><button type="button" onClick={() => scrollReviews(1)} aria-label="Nächste Bewertung">→</button></div>
+              <div><span className="eyebrow">Momente, die bleiben</span><h2>So fühlt sich ein wirklich persönliches Geschenk an</h2></div>
+              <div className="review-slider-actions"><span>Weitere Erfahrungen</span><button type="button" onClick={() => scrollReviews(-1)} aria-label="Vorherige Bewertung">←</button><button type="button" onClick={() => scrollReviews(1)} aria-label="Nächste Bewertung">→</button></div>
             </div>
             <div className="review-slider" ref={reviewSliderRef}>
               {content.funnel.audioReviews.map((review, index) => <article className="finish-review-card" key={`${review.name}-${index}`}>
@@ -443,8 +443,8 @@ export default function ComposerPage({ content }: { content: SiteContent }) {
                 </div>
                 <div className="review-rating"><span className="review-stars" aria-label="5 Sterne"><i>★</i><i>★</i><i>★</i><i>★</i><i>★</i></span><span className="review-verified">✓ Verifiziert</span></div>
                 <h3>{review.title}</h3>
-                <p>« {review.quote} »</p>
-                <button type="button" className="review-audio-button" disabled={!review.audio} onClick={() => toggleReview(index, review.audio)}><span><PlayIcon paused={playingReview !== index} /></span><div><strong>{playingReview === index ? "Pause" : "Ihr Lied anhören"}</strong><small>{review.occasion} · {review.audio ? review.duration : "Bald verfügbar"}</small></div></button>
+                <p>„{review.quote}“</p>
+                <button type="button" className="review-audio-button" disabled={!review.audio} onClick={() => toggleReview(index, review.audio)}><span><PlayIcon paused={playingReview !== index} /></span><div><strong>{playingReview === index ? "Pause" : "Lied anhören"}</strong><small>{review.occasion} · {review.audio ? review.duration : "Hörprobe folgt"}</small></div></button>
                 {review.audio && <audio ref={element => { audioRefs.current[index] = element; }} src={review.audio} onEnded={() => setPlayingReview(null)} />}
               </article>)}
             </div>

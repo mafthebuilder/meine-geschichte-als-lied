@@ -128,7 +128,7 @@ export default function DeliveryPage({ token }: { token: string }) {
       });
       const payload = await response.json() as { ok?: boolean; revisionCount?: number; error?: string };
       if (!response.ok) throw new Error(payload.error || "Deine Änderungsanfrage konnte nicht gesendet werden.");
-      setRevisionStatus("Deine Änderungsanfrage wurde an Justine gesendet ✓");
+      setRevisionStatus("Deine Änderungsanfrage wurde erfolgreich gesendet ✓");
       setRevisionMessage("");
       setSongMoment("");
       setData(current => current ? {
@@ -146,7 +146,7 @@ export default function DeliveryPage({ token }: { token: string }) {
 
   if (loading) return <main className="delivery-page delivery-state-page"><div className="delivery-state-card"><span className="delivery-note">♪</span><h1>Dein Lied ist gleich da …</h1><p>Wir bereiten deinen privaten Bereich vor.</p></div></main>;
 
-  if (!data || error) return <main className="delivery-page delivery-state-page"><div className="delivery-state-card"><span className="delivery-note">♪</span><h1>Link nicht gefunden</h1><p>{error || "Diese Seite ist nicht mehr verfügbar."}</p><a href="mailto:contact@monhistoirechantee.com">Contacter Justine</a></div></main>;
+  if (!data || error) return <main className="delivery-page delivery-state-page"><div className="delivery-state-card"><span className="delivery-note">♪</span><h1>Link nicht gefunden</h1><p>{error || "Diese Seite ist nicht mehr verfügbar."}</p><a href="mailto:kontakt@meinegeschichtealslied.com">Support kontaktieren</a></div></main>;
 
   const revisionUsed = data.revisionLimit !== null && data.revisionCount >= data.revisionLimit;
   const noRevisionIncluded = data.revisionLimit === 0;
@@ -167,21 +167,21 @@ export default function DeliveryPage({ token }: { token: string }) {
     {previewMode && <div className="delivery-preview-banner">Admin-Vorschau · kein Kundenaufruf wird erfasst</div>}
     <header className="delivery-header">
       <img src={LOGO_URL} alt="Meine Geschichte als Lied" />
-      <span>Privater und geschützter Bereich</span>
+      <span>Dein privater Lied-Bereich</span>
     </header>
 
     <section className="delivery-shell">
       <div className="delivery-hero-copy">
-        <span className="delivery-eyebrow">✦ Dein Lied ist fertig</span>
+        <span className="delivery-eyebrow">✦ Dein persönliches Lied ist fertig</span>
         <h1>Eine Geschichte wurde<br /><em>zum Lied für {data.recipientName}</em></h1>
-        <p>Hallo {data.customerFirstName || "du"}, alles, was du uns anvertraut hast, hat jetzt eine Stimme. Nimm dir einen Moment, dreh den Ton auf und lass das Lied wirken.</p>
+        <p>Hallo {data.customerFirstName || "du"}, aus deinen Erinnerungen und Worten ist jetzt ein Lied geworden. Nimm dir einen Moment, dreh den Ton auf und hör es in Ruhe an.</p>
       </div>
 
       <article className="delivery-player-card">
         <div className="delivery-player-top">
           <div className="delivery-cover-mark">♪</div>
           <div>
-            <span>Original für euch erstellt</span>
+            <span>Einzigartig für euch erstellt</span>
             <h2>Für {data.recipientName}</h2>
           </div>
           <span className="delivery-order-number">{data.orderName}</span>
@@ -215,15 +215,15 @@ export default function DeliveryPage({ token }: { token: string }) {
         <button type="button" className="delivery-download-button" onClick={downloadSong} disabled={downloading}>
           <span>{downloading ? "MP3 wird vorbereitet …" : "Mein Lied herunterladen"}</span><b>{downloading ? "…" : "↓"}</b>
         </button>
-        <p className="delivery-download-note">MP3-Datei · Zum Behalten und Teilen mit deinen Liebsten</p>
+        <p className="delivery-download-note">MP3-Datei · Zum Behalten, Verschenken und Teilen</p>
       </article>
 
       <section className="delivery-gift-section">
-        <span className="delivery-section-kicker">Der perfekte Moment</span>
-        <h2>Wie überreichst du das Lied am schönsten?</h2>
+        <span className="delivery-section-kicker">Mach daraus euren Moment</span>
+        <h2>So wird das Verschenken noch persönlicher</h2>
         <div className="delivery-gift-grid">
           <article><span>01</span><strong>Mach einen echten Moment daraus</strong><p>Wähle einen ruhigen Augenblick, in dem die Person ungestört zuhören kann.</p></article>
-          <article><span>02</span><strong>Bewahre die Überraschung</strong><p>Starte einfach das Lied und genieße den Moment, in dem die Person ihre eigene Geschichte erkennt.</p></article>
+          <article><span>02</span><strong>Lass das Lied für sich sprechen</strong><p>Starte das Lied und beobachte den Moment, in dem die ersten vertrauten Details erkannt werden.</p></article>
           <article><span>03</span><strong>Halte die Reaktion fest</strong><p>Wenn es passt, filme den Moment ganz unauffällig. Diese Erinnerung kann genauso wertvoll werden wie das Lied selbst.</p></article>
         </div>
       </section>
@@ -236,7 +236,7 @@ export default function DeliveryPage({ token }: { token: string }) {
         </div>
 
         {!showRevision && data.canRequestRevision && <button type="button" className="delivery-revision-button" onClick={() => setShowRevision(true)}>Änderung anfragen</button>}
-        {!data.canRequestRevision && !data.revisionPending && <a className="delivery-revision-button secondary" href="mailto:kontakt@meinegeschichtealslied.com">Justine schreiben</a>}
+        {!data.canRequestRevision && !data.revisionPending && <a className="delivery-revision-button secondary" href="mailto:kontakt@meinegeschichtealslied.com">Support kontaktieren</a>}
         {data.revisionPending && <span className="delivery-revision-pending">Anfrage wird bearbeitet</span>}
 
         {showRevision && data.canRequestRevision && <form className="delivery-revision-form" onSubmit={submitRevision}>
@@ -265,7 +265,7 @@ export default function DeliveryPage({ token }: { token: string }) {
 
     <footer className="delivery-footer">
       <img src={LOGO_URL} alt="Meine Geschichte als Lied" />
-      <p>Diese Seite ist streng privat. Eine Frage? <a href="mailto:kontakt@meinegeschichtealslied.com">Schreib Justine</a>.</p>
+      <p>Diese Seite ist streng privat. Eine Frage? <a href="mailto:kontakt@meinegeschichtealslied.com">Unser Support hilft dir weiter</a>.</p>
     </footer>
   </main>;
 }

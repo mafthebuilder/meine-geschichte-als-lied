@@ -196,7 +196,7 @@ export default function StripePayment({ submissionId, answers, total, recipientN
         setTestMode(result.testMode);
         trackMetaEvent("InitiateCheckout", paymentParams, `initiate_checkout:stripe:${submissionId}`, "session", `initiate_checkout:stripe:${submissionId}`);
       } catch (intentError) {
-        if (!cancelled) setError(intentError instanceof Error ? intentError.message : "Die sichere Zahlung ist momentan nicht verfügbar.");
+        if (!cancelled) setError(intentError instanceof Error ? intentError.message : "Die sichere Zahlung ist gerade nicht verfügbar. Bitte versuche es gleich noch einmal.");
       } finally {
         if (!cancelled) setLoadingIntent(false);
       }
@@ -340,12 +340,12 @@ export default function StripePayment({ submissionId, answers, total, recipientN
     {success ? <div className="stripe-payment-success">
       <span className="stripe-success-icon">✓</span>
       <span className="eyebrow">Zahlung bestätigt</span>
-      <h2>Dein Lied für <em>{recipientName}</em> wird jetzt erstellt.</h2>
-      <p>Eine Bestätigung wurde an <strong>{answers.email}</strong> gesendet. Justine hält dich über jeden Schritt auf dem Laufenden.</p>
-      <div className="stripe-success-details"><span>Sichere Bestellung</span><span>Persönlich erstellt</span><span>{answers.express ? "Express-Lieferung in 24 Std." : "Lieferung in 4 Tagen"}</span></div>
+      <h2>Dein Lied für <em>{recipientName}</em> ist jetzt in Arbeit.</h2>
+      <p>Die Bestätigung geht an <strong>{answers.email}</strong>. Sobald dein Lied fertig ist, erhältst du dort deinen privaten Link.</p>
+      <div className="stripe-success-details"><span>Sichere Bestellung</span><span>Persönlich erstellt</span><span>{answers.express || offer.deliveryHours <= 24 ? "Lieferung in 24 Std." : "Lieferung in 4 Tagen"}</span></div>
     </div> : <>
       <div className="stripe-payment-heading">
-        <div><span className="eyebrow">Alles ist bereit</span><h2>Dein Lied kann jetzt entstehen</h2><p>Schließe deine Bestellung ab, damit wir sofort mit dem Lied für <strong>{recipientName}</strong> beginnen können.</p></div>
+        <div><span className="eyebrow">Nur noch ein Schritt</span><h2>Dein Lied für {recipientName} kann jetzt entstehen</h2><p>Schließe deine Bestellung sicher ab. Danach beginnen wir mit der Erstellung deines persönlichen Liedes.</p></div>
         <div className="stripe-trust-badges" aria-label="Vertrauensmerkmale">
           <span className="stripe-secure-badge">🔒 Sicher mit Stripe</span>
           <span className="stripe-business-badge">✓ Verifiziertes Unternehmen</span>
@@ -364,9 +364,9 @@ export default function StripePayment({ submissionId, answers, total, recipientN
           <div className="stripe-card-label"><strong>Kredit- oder Debitkarte</strong><span>Visa · Mastercard</span></div>
           <div className={ready ? "stripe-element-frame ready" : "stripe-element-frame"} ref={cardRef} />
           <button type="button" className="button stripe-card-submit" onClick={() => void confirmPayment("card")} disabled={!ready || loading || loadingIntent}>
-            {loading ? <><i className="stripe-spinner" /> Zahlung läuft …</> : <>Lied bestellen <span aria-hidden="true">✦</span></>}
+            {loading ? <><i className="stripe-spinner" /> Zahlung läuft …</> : <>Jetzt sicher bestellen <span aria-hidden="true">✦</span></>}
           </button>
-          <div className="stripe-micro-reassurance"><span>🔒 Verschlüsselte Daten</span><span>✓ Kein Abo</span><span>↩ Geld-zurück-Garantie</span></div>
+          <div className="stripe-micro-reassurance"><span>🔒 Sicher verschlüsselt</span><span>✓ Einmalzahlung · kein Abo</span><span>↩ Geld-zurück-Garantie</span></div>
         </div>
       </div>}
 

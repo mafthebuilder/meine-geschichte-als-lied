@@ -26,11 +26,48 @@ async function parseApiResponse<T>(response: Response, fallback: string): Promis
   return data;
 }
 
+function looksLikeLegacyFrenchContent(content: unknown) {
+  if (!content || typeof content !== "object") return false;
+  const raw = JSON.stringify(content).toLowerCase();
+  return raw.includes("mon histoire chantée")
+    || raw.includes("monhistoirechantee.com")
+    || raw.includes("votre chanson")
+    || raw.includes("créez votre")
+    || raw.includes("livraison en 4 jours");
+}
+
+function germanDefaultsWithLegacyMedia(content: Partial<SiteContent>): SiteContent {
+  const result = structuredClone(defaultContent);
+  if (content.brand?.colors) result.brand.colors = { ...result.brand.colors, ...content.brand.colors };
+  if (typeof content.privacy?.cookieBannerEnabled === "boolean") result.privacy.cookieBannerEnabled = content.privacy.cookieBannerEnabled;
+  if (content.hero?.video) result.hero.video = content.hero.video;
+  if (content.songPreview?.audio) result.songPreview.audio = content.songPreview.audio;
+  if (Array.isArray(content.occasions)) {
+    result.occasions = result.occasions.map((item, index) => ({
+      ...item,
+      image: content.occasions?.[index]?.image || item.image
+    }));
+  }
+  if (Array.isArray(content.funnel?.audioReviews)) {
+    result.funnel.audioReviews = result.funnel.audioReviews.map((review, index) => {
+      const legacy = content.funnel?.audioReviews?.[index];
+      return {
+        ...review,
+        video: legacy?.video || review.video,
+        audio: legacy?.audio || review.audio,
+        duration: legacy?.duration || review.duration
+      };
+    });
+  }
+  return result;
+}
+
 export async function getSiteContent(): Promise<SiteContent> {
   try {
     const response = await fetch("/api/content");
     if (!response.ok) return defaultContent;
     const data = await response.json() as { content?: Partial<SiteContent> };
+    if (looksLikeLegacyFrenchContent(data.content)) return germanDefaultsWithLegacyMedia(data.content || {});
     return mergeDeep(defaultContent, data.content);
   } catch {
     return defaultContent;
