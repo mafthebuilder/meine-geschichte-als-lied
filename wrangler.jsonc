@@ -3,6 +3,7 @@
   "name": "meine-geschichte-als-lied",
   "main": "worker/index.ts",
   "compatibility_date": "2026-07-26",
+  "keep_vars": true,
   "assets": {
     "not_found_handling": "single-page-application",
     "binding": "ASSETS"
@@ -18,6 +19,11 @@
     {
       "binding": "MEDIA",
       "bucket_name": "meine-geschichte-als-lied-media"
+    }
+  ],
+  "send_email": [
+    {
+      "name": "EMAIL"
     }
   ]
 }
